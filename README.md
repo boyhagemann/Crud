@@ -32,7 +32,7 @@ Then add the following line in app/config/app.php:
 <?php
 
 use Boyhagemann\Crud\CrudController;
-use Boyhagemann\Crud\FormBuilderl;
+use Boyhagemann\Crud\FormBuilder;
 use Boyhagemann\Crud\ModelBuilder;
 use Boyhagemann\Crud\OverviewBuilder;
 
