@@ -3,6 +3,8 @@
 use Symfony\Component\Form\FormView;
 
 /**
+ * 
+ * Render the total form, just to quickly render a working form
  *
  */
 Form::macro('render', function(FormView $view, Model $model = null) {
@@ -22,6 +24,11 @@ Form::macro('render', function(FormView $view, Model $model = null) {
 
 /**
  * 
+ * Render only the dynamically generated form fields. 
+ * 
+ * You have to manually add the Form::open() and Form::close() methods 
+ * and add a submit button.
+ * 
  */
 Form::macro('renderFields', function(FormView $view) {
 
@@ -35,7 +42,11 @@ Form::macro('renderFields', function(FormView $view) {
 });
 
 /**
+ * 
+ * Render a single form field
  *
+ * It converts the Symfony field elements to Laravel Form ones.
+ * 
  */
 Form::macro('formRow', function(FormView $view, $level = 1) {
 
@@ -85,6 +96,8 @@ Form::macro('formRow', function(FormView $view, $level = 1) {
 
 
 /**
+ * 
+ * A convenience macro to build bundled checkboxes
  *
  */
 Form::macro('multiCheckbox', function ($name, $multiOptions, Array $defaults = null) {
@@ -109,6 +122,8 @@ Form::macro('multiCheckbox', function ($name, $multiOptions, Array $defaults = n
 
 
 /**
+ * 
+ * A convenience method to build bundled radio buttons
  *
  */
 Form::macro('multiRadio', function ($name, $multiOptions, Array $defaults = null) {
