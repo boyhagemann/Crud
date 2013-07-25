@@ -36,7 +36,7 @@ Form::macro('formRow', function(FormView $view, $level = 1) {
 		case 'integer':
 		case 'percent':
 		case 'text':
-			$formElement = Form::text($name);
+			$formElement = Form::text($name, $vars['value']);
 			break;
 
 		case 'choice':
