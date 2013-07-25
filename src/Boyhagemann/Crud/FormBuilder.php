@@ -58,9 +58,10 @@ class FormBuilder
 	}
 
 
-
-
-
+	/**
+	 * @param $name
+	 * @return FormBuilder\Element
+	 */
 	public function text($name)
 	{
 		$this->factory->add($name, 'text');
@@ -68,6 +69,8 @@ class FormBuilder
 		if($this->getModelBuilder()) {
 			$this->getModelBuilder()->column($name, 'string');
 		}
+
+		return new FormBuilder\Element($name, $this->factory);
 	}
 
 	public function textarea($name)
