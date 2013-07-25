@@ -5,16 +5,32 @@ use Symfony\Component\Form\FormView;
 /**
  *
  */
-Form::macro('render', function(FormView $view) {
+Form::macro('render', function(FormView $view, Model $model = null) {
 
-	$html = Form::open();
-	foreach($view->children as $child) {
-		$html .= Form::formRow($child);
+	if($model) {
+		$html = Form::model($model, $view->vars['action']);
 	}
-
+	else {
+		$html = Form::open($view->vars['action']);
+	}
+	
 	$html .= Form::submit('Save');
 	$html .= Form::close();
 
+	return $html;
+});
+
+/**
+ * 
+ */
+Form::macro('renderFields', function(FormView $view) {
+
+	$html = '';
+	
+	foreach($view->children as $child) {
+		$html .= Form::formRow($child);
+	}
+	
 	return $html;
 });
 
