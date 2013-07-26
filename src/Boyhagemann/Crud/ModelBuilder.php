@@ -138,7 +138,16 @@ class ModelBuilder
 	 */
 	public function writeModel()
 	{
-		$filename = '../' . $this->modelPath . '/' . $this->name . '.php';
+		$parts = explode('\\', $this->name);
+		$filename = '../' . $this->modelPath;
+		for($i = 0; $i < count($parts); $i++) {
+			$filename .= '/' . $parts[$i];
+			if($i < count($parts) - 1) {
+				@mkdir($filename);
+			}
+		}
+		$filename .= '.php';
+
 		$contents = $this->buildFile();
 		file_put_contents($filename, $contents);
 		require_once $filename;
@@ -150,8 +159,9 @@ class ModelBuilder
 	public function buildFile()
 	{
 		$this->generator->setClass($this->name);
-		$class = $this->generator->getClass($this->name);
-		$class->setExtendedClass('Eloquent');
+		$class = current($this->generator->getClasses());
+		$class->setExtendedClass('\Eloquent');
+
 
 		// Set the table name
 		$class->addProperty('table', $this->table, PropertyGenerator::FLAG_PROTECTED);
