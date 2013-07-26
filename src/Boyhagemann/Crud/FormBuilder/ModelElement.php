@@ -2,8 +2,13 @@
 
 namespace Boyhagemann\Crud\FormBuilder;
 
+use App;
+
 class ModelElement extends CheckableElement
 {
+	/**
+	 * @var string|\Illuminate\Database\Eloquent\Model
+	 */
 	protected $model;
 
 	protected $key;
@@ -56,10 +61,10 @@ class ModelElement extends CheckableElement
 	public function getOptions()
 	{
 		if(is_string($this->model)) {
-			$model = \App::make($this->model);
+			$this->model = App::make($this->model);
 		}
 
-		$q = $model->query();
+		$q = $this->model->query();
 
 		if($this->callback) {
 			$this->callback($q);

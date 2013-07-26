@@ -93,7 +93,7 @@ Form::macro('formRow', function(FormInterface $form, $errors) {
 				else {
 					$formElement = Form::multiSelect($name, $choices);
 				}
-				
+
 			}
 			else {
 

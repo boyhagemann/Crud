@@ -25,6 +25,11 @@ class InputElement
 	protected $rules;
 
 	/**
+	 * @var ModelBuilder
+	 */
+	protected $modelBuilder;
+
+	/**
 	 * @param       $name
 	 * @param       $type
 	 * @param array $options

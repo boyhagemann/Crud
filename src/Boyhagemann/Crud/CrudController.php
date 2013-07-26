@@ -34,14 +34,13 @@ abstract class CrudController extends BaseController
 		$this->modelBuilder = $modelBuilder;
 		$this->overviewBuilder = $overviewBuilder;
 
-		$overviewBuilder->setFormBuilder($formBuilder);
-		$overviewBuilder->setModelBuilder($modelBuilder);
-
 		$this->buildModel($modelBuilder);
-		$formBuilder->setModelBuilder($modelBuilder);
 
+		$formBuilder->setModelBuilder($modelBuilder);
 		$this->buildForm($formBuilder);
-		$this->buildOverview($overviewBuilder);
+
+		$formBuilder->build();
+		$modelBuilder->export();
 	}
 
 	/**
@@ -58,14 +57,6 @@ abstract class CrudController extends BaseController
 	 * @param OverviewBuilder $overviewBuilder
 	 */
 	abstract public function buildModel(ModelBuilder $modelBuilder);
-
-	/**
-	 * @return FormBuilder
-	 */
-	public function getFormBuilder()
-	{
-		return $this->formBuilder;
-	}
 
 	/**
 	 * @return Model
@@ -88,7 +79,18 @@ abstract class CrudController extends BaseController
 	 */
 	public function index()
 	{
-		$overview = $this->overviewBuilder->build();
+		$model = $this->modelBuilder->build();
+		$form = $this->formBuilder->build();
+
+		$overviewBuilder = $this->overviewBuilder;
+		$overviewBuilder->setForm($form);
+		$overviewBuilder->setModel($model);
+
+		$this->buildOverview($overviewBuilder);
+
+
+		$overview = $overviewBuilder->build();
+
 		$class = get_called_class();
 
 		return View::make('crud::crud/index', compact('overview', 'class'));
@@ -118,6 +120,7 @@ abstract class CrudController extends BaseController
 	{
 		$form = $this->getForm();
 		$model = $this->getModel();
+
 		$v = Validator::make(Input::all(), $model->rules);
 
 		if($v->fails()) {

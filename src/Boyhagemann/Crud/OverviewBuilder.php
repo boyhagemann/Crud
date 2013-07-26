@@ -7,6 +7,9 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class OverviewBuilder
 {
+	protected $model;
+	protected $form;
+
 	protected $fields = array();
 
 	/**
@@ -15,37 +18,31 @@ class OverviewBuilder
 	protected $queryBuilder;
 
 	/**
-	 * @var ModelBuilder
+	 * @param mixed $form
 	 */
-	protected $modelBuilder;
-
-	/**
-	 * @var FormBuilder
-	 */
-	protected $formBuilder;
-
-	/**
-	 * @param ModelBuilder $modelBuilder
-	 */
-	public function setModelBuilder(ModelBuilder $modelBuilder)
-	{
-		$this->modelBuilder = $modelBuilder;
+	public function setForm($form) {
+		$this->form = $form;
 	}
 
 	/**
-	 * @return ModelBuilder
+	 * @return mixed
 	 */
-	public function getModelBuilder()
-	{
-		return $this->modelBuilder;
+	public function getForm() {
+		return $this->form;
 	}
 
 	/**
-	 * @param FormBuilder $formBuilder
+	 * @param mixed $model
 	 */
-	public function setFormBuilder(FormBuilder $formBuilder)
-	{
-		$this->formBuilder = $formBuilder;
+	public function setModel($model) {
+		$this->model = $model;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getModel() {
+		return $this->model;
 	}
 
 	/**
@@ -57,17 +54,9 @@ class OverviewBuilder
 			return $this->queryBuilder;
 		}
 
-		$this->queryBuilder = $this->getModelBuilder()->build()->query();
+		$this->queryBuilder = $this->model->query();
 
 		return $this->queryBuilder;
-	}
-
-	/**
-	 * @return FormBuilder
-	 */
-	public function getFormBuilder()
-	{
-		return $this->formBuilder;
 	}
 
 	/**
@@ -114,12 +103,10 @@ class OverviewBuilder
 	 */
 	public function build()
 	{
-		$model = $this->getModelBuilder()->build();
-		$form = $this->getFormBuilder()->build();
 		$overview = new Overview();
 
 		foreach($this->fields as $field) {
-			$element = $form->get($field);
+			$element = $this->form->get($field);
 			$label = $element->createView()->vars['label'];
 			$overview->label($field, $label);
 		}
@@ -128,7 +115,7 @@ class OverviewBuilder
 
 			$columns = array();
 			foreach($this->fields as $field) {
-				$columns[$field] = $this->buildColumn($field, $form->get($field), $record);
+				$columns[$field] = $this->buildColumn($field, $this->form->get($field), $record);
 			}
 
 			$overview->row($record->id, $columns);

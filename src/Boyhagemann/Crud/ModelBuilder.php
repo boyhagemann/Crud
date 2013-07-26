@@ -48,7 +48,7 @@ class ModelBuilder
 	/**
 	 * @var array
 	 */
-	protected $rules = array();
+	public $rules = array();
 
 	/**
 	 * @param FileGenerator $generator
@@ -120,24 +120,7 @@ class ModelBuilder
 	public function export()
 	{
 		$this->getBlueprint()->build(DB::connection(), DB::connection()->getSchemaGrammar());
-	}
 
-	/**
-	 * @return Model
-	 */
-	public function build()
-	{
-		$this->writeModel();
-		$this->export();
-
-		return App::make($this->name);
-	}
-
-	/**
-	 *
-	 */
-	public function writeModel()
-	{
 		$parts = explode('\\', $this->name);
 		$filename = '../' . $this->modelPath;
 		for($i = 0; $i < count($parts); $i++) {
@@ -151,6 +134,14 @@ class ModelBuilder
 		$contents = $this->buildFile();
 		file_put_contents($filename, $contents);
 		require_once $filename;
+	}
+
+	/**
+	 * @return Model
+	 */
+	public function build()
+	{
+		return App::make($this->name);
 	}
 
 	/**
