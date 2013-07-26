@@ -198,6 +198,10 @@ class FormBuilder
 	 */
 	public function checkbox($name)
 	{
+		if($this->getModelBuilder()) {
+			$this->getModelBuilder()->column($name, 'string');
+		}
+
 		return $this->addElement($name, 'checkable', 'choice', array(
 			'multiple' => true,
 			'expanded' => true,

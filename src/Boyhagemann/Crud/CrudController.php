@@ -4,7 +4,7 @@ namespace Boyhagemann\Crud;
 
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\Form\FormView;
-use View, BaseController, Event, Form;
+use View, BaseController, Form, Validator, Input, Redirect, Session;
 
 abstract class CrudController extends BaseController
 {
@@ -85,7 +85,9 @@ abstract class CrudController extends BaseController
 	public function index()
 	{
 		$overview = $this->overviewBuilder->render();
-		return View::make('crud::crud/index', compact('overview'));
+		$class = get_called_class();
+
+		return View::make('crud::crud/index', compact('overview', 'class'));
 	}
 
 	/**
@@ -95,12 +97,26 @@ abstract class CrudController extends BaseController
 	{
 		$form = $this->getForm();
 		$model = $this->getModel();
+		$action = get_called_class() . '@store';
+		$errors = Session::get('errors');
 
-		return View::make('crud::crud/create', compact('form'));
+		return View::make('crud::crud/create', compact('form', 'model', 'action', 'errors'));
 	}
 
 	public function store()
 	{
 		$model = $this->getModel();
+		$v = Validator::make(Input::all(), $model->rules);
+
+		if($v->fails()) {
+			return Redirect::action(get_called_class() . '@create')->withErrors($v->messages());
+		}
+
+		foreach($model->getFillable() as $field) {
+			$model->$field = Input::get($field);
+		}
+		$model->save();
+
+		return Redirect::action(get_called_class() . '@index');
 	}
 }

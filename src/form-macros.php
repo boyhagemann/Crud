@@ -35,12 +35,12 @@ Form::macro('render', function(FormView $view, Model $model = null) {
  * and add a submit button.
  * 
  */
-Form::macro('renderFields', function(FormView $view) {
+Form::macro('renderFields', function(FormView $view, $errors) {
 
 	$html = '';
 	
 	foreach($view->children as $child) {
-		$html .= Form::formRow($child);
+		$html .= Form::formRow($child, $errors);
 	}
 	
 	return $html;
@@ -53,11 +53,11 @@ Form::macro('renderFields', function(FormView $view) {
  * It converts the Symfony field elements to Laravel Form ones.
  * 
  */
-Form::macro('formRow', function(FormView $view, $level = 1) {
+Form::macro('formRow', function(FormView $view, $errors) {
 
 	$html = '';
 	$vars = $view->vars;
-	$type = $vars['block_prefixes'][$level];
+	$type = $vars['block_prefixes'][1];
 	$name = $vars['name'];
 	$label = $vars['label'] ?: $name;
 
@@ -94,7 +94,9 @@ Form::macro('formRow', function(FormView $view, $level = 1) {
 		default: return;
 	}
 
-	$html = sprintf('<div class="row">%s%s</div>', $formLabel, $formElement);
+	$error = $errors ? $errors->first($name, '<span class="error">:message</span>') : '';
+
+	$html = sprintf('<div class="row">%s%s%s</div>', $formLabel, $formElement, $error);
 
 	return $html;
 });

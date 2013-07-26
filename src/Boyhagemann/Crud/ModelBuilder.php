@@ -38,6 +38,11 @@ class ModelBuilder
 	/**
 	 * @var array
 	 */
+	protected $columns;
+
+	/**
+	 * @var array
+	 */
 	protected $relations = array();
 
 	/**
@@ -72,6 +77,7 @@ class ModelBuilder
 		if(!Schema::hasTable($table)) {
 			$this->blueprint->create();
 			$this->blueprint->increments('id');
+			$this->blueprint->timestamps();
 		}
 	}
 
@@ -98,8 +104,13 @@ class ModelBuilder
 	 */
 	public function column($name, $type)
 	{
+		$this->columns[$name] = $type;
+
 		if(!Schema::hasColumn($this->table, $name)) {
-			$this->getBlueprint()->$type($name);
+			$column = $this->getBlueprint()->$type($name);
+			if(!isset($this->rules[$name]) || false !== strpos('required', $this->rules[$name])) {
+				$column->nullable();
+			}
 		}
 	}
 
@@ -143,12 +154,18 @@ class ModelBuilder
 	{
 		$this->generator->setClass($this->name);
 		$class = $this->generator->getClass($this->name);
+		$class->setExtendedClass('Eloquent');
 
 		// Set the table name
 		$class->addProperty('table', $this->table, PropertyGenerator::FLAG_PROTECTED);
 
 		// Set the rules
 		$class->addProperty('rules', $this->rules);
+
+		$class->addProperty('guarded', array('id'), PropertyGenerator::FLAG_PROTECTED);
+
+		$fillable = array_keys($this->columns);
+		$class->addProperty('fillable', $fillable, PropertyGenerator::FLAG_PROTECTED);
 
 		// Add elements, only for relationships
 		foreach($this->relations as $name => $relation) {
