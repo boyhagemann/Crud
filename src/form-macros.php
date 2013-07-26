@@ -1,13 +1,15 @@
 <?php
 
-use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * 
  * Render the total form, just to quickly render a working form
  *
  */
-Form::macro('render', function(FormView $view, Model $model = null) {
+Form::macro('render', function(FormInterface $form, Model $model = null) {
+
+	$view = $form->createView();
 
 	$options = array(
 		'action' => $view->vars['action'],
@@ -20,7 +22,7 @@ Form::macro('render', function(FormView $view, Model $model = null) {
 		$html = Form::open($options);
 	}
 
-	$html .= Form::renderFields($view);
+	$html .= Form::renderFields($form);
 	$html .= Form::submit('Save');
 	$html .= Form::close();
 
@@ -35,11 +37,11 @@ Form::macro('render', function(FormView $view, Model $model = null) {
  * and add a submit button.
  * 
  */
-Form::macro('renderFields', function(FormView $view, $errors) {
+Form::macro('renderFields', function(FormInterface $form, $errors) {
 
 	$html = '';
 	
-	foreach($view->children as $child) {
+	foreach($form->all() as $child) {
 		$html .= Form::formRow($child, $errors);
 	}
 	
@@ -53,11 +55,12 @@ Form::macro('renderFields', function(FormView $view, $errors) {
  * It converts the Symfony field elements to Laravel Form ones.
  * 
  */
-Form::macro('formRow', function(FormView $view, $errors) {
+Form::macro('formRow', function(FormInterface $form, $errors) {
 
 	$html = '';
+	$view = $form->createView();
 	$vars = $view->vars;
-	$type = $vars['block_prefixes'][1];
+	$type = $form->getConfig()->getType()->getInnerType()->getName();
 	$name = $vars['name'];
 	$label = $vars['label'] ?: $name;
 
@@ -68,7 +71,11 @@ Form::macro('formRow', function(FormView $view, $errors) {
 		case 'integer':
 		case 'percent':
 		case 'text':
-			$formElement = Form::text($name, $vars['value']);
+			$formElement = Form::text($name);
+			break;
+
+		case 'textarea':
+			$formElement = Form::textarea($name);
 			break;
 
 		case 'choice':

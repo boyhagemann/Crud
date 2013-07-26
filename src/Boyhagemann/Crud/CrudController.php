@@ -38,6 +38,9 @@ abstract class CrudController extends BaseController
 
 		$this->buildForm($formBuilder);
 		$this->buildOverview($overviewBuilder);
+
+		$overviewBuilder->setFormBuilder($formBuilder);
+		$overviewBuilder->setModelBuilder($modelBuilder);
 	}
 
 	/**
@@ -76,7 +79,7 @@ abstract class CrudController extends BaseController
 	 */
 	public function getForm()
 	{
-		return $this->formBuilder->build()->createView();
+		return $this->formBuilder->build();
 	}
 
 	/**
@@ -84,7 +87,7 @@ abstract class CrudController extends BaseController
 	 */
 	public function index()
 	{
-		$overview = $this->overviewBuilder->render();
+		$overview = $this->overviewBuilder->build();
 		$class = get_called_class();
 
 		return View::make('crud::crud/index', compact('overview', 'class'));
@@ -105,6 +108,7 @@ abstract class CrudController extends BaseController
 
 	public function store()
 	{
+		$form = $this->getForm();
 		$model = $this->getModel();
 		$v = Validator::make(Input::all(), $model->rules);
 
@@ -116,6 +120,46 @@ abstract class CrudController extends BaseController
 			$model->$field = Input::get($field);
 		}
 		$model->save();
+
+		return Redirect::action(get_called_class() . '@index');
+	}
+
+	public function edit($id)
+	{
+		$form = $this->getForm();
+		$model = $this->getModel()->findOrFail($id);
+
+		$action = get_called_class() . '@update';
+		$errors = Session::get('errors');
+
+		return View::make('crud::crud/edit', compact('form', 'model', 'action', 'errors'));
+	}
+
+	public function update($id)
+	{
+		$form = $this->getForm();
+		$model = $this->getModel()->findOrFail($id);
+
+		$v = Validator::make(Input::all(), $model->rules);
+
+		if($v->fails()) {
+			return Redirect::action(get_called_class() . '@edit', array($model->id))->withErrors($v->messages());
+		}
+
+		foreach($model->getFillable() as $field) {
+			$model->$field = Input::get($field);
+		}
+		$model->save();
+
+		return Redirect::action(get_called_class() . '@index');
+	}
+
+	public function destroy($id)
+	{
+		$form = $this->getForm();
+		$model = $this->getModel()->findOrFail($id);
+
+		$model->delete();
 
 		return Redirect::action(get_called_class() . '@index');
 	}
