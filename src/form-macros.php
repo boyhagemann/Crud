@@ -9,13 +9,18 @@ use Symfony\Component\Form\FormView;
  */
 Form::macro('render', function(FormView $view, Model $model = null) {
 
+	$options = array(
+		'action' => $view->vars['action'],
+	);
+
 	if($model) {
-		$html = Form::model($model, $view->vars['action']);
+		$html = Form::model($model, $options);
 	}
 	else {
-		$html = Form::open($view->vars['action']);
+		$html = Form::open($options);
 	}
-	
+
+	$html .= Form::renderFields($view);
 	$html .= Form::submit('Save');
 	$html .= Form::close();
 
