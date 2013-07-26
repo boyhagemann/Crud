@@ -3,12 +3,16 @@
 namespace Boyhagemann\Crud;
 
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class OverviewBuilder
 {
 	protected $fields = array();
 
-	protected $options = array();
+	/**
+	 * @var QueryBuilder
+	 */
+	protected $queryBuilder;
 
 	/**
 	 * @var ModelBuilder
@@ -45,6 +49,20 @@ class OverviewBuilder
 	}
 
 	/**
+	 * @return QueryBuilder
+	 */
+	public function getQueryBuilder()
+	{
+		if($this->queryBuilder) {
+			return $this->queryBuilder;
+		}
+
+		$this->queryBuilder = $this->getModelBuilder()->build()->query();
+
+		return $this->queryBuilder;
+	}
+
+	/**
 	 * @return FormBuilder
 	 */
 	public function getFormBuilder()
@@ -52,9 +70,25 @@ class OverviewBuilder
 		return $this->formBuilder;
 	}
 
+	/**
+	 * @param $limit
+	 * @return $this
+	 */
 	public function display($limit)
 	{
-		$this->options['limit'] = $limit;
+		$this->getQueryBuilder()->take($limit);
+		return $this;
+	}
+
+	/**
+	 * @param $order
+	 * @param $direction
+	 * @return $this
+	 */
+	public function order($order, $direction = null)
+	{
+		$this->getQueryBuilder()->orderBy($order, $direction);
+		return $this;
 	}
 
 	/**
@@ -63,6 +97,16 @@ class OverviewBuilder
 	public function fields(Array $fields)
 	{
 		$this->fields = $fields;
+	}
+
+	/**
+	 * @param \Closure $callback
+	 * @return $this
+	 */
+	public function query(\Closure $callback)
+	{
+		$callback($this->getQueryBuilder());
+		return $this;
 	}
 
 	/**
@@ -80,9 +124,7 @@ class OverviewBuilder
 			$overview->label($field, $label);
 		}
 
-		$records = $model->all();
-
-		foreach($records as $record) {
+		foreach($this->getQueryBuilder()->get() as $record) {
 
 			$columns = array();
 			foreach($this->fields as $field) {

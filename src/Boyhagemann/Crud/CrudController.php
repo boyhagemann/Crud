@@ -26,21 +26,22 @@ abstract class CrudController extends BaseController
 	/**
 	 * @param FormBuilder     $formBuilder
 	 * @param OverviewBuilder $overviewBuilder
+	 * @param ModelBuilder 	  $modelBuilder
 	 */
 	public function __construct(FormBuilder $formBuilder, OverviewBuilder $overviewBuilder, ModelBuilder $modelBuilder)
 	{
 		$this->formBuilder = $formBuilder;
-		$this->overviewBuilder = $overviewBuilder;
 		$this->modelBuilder = $modelBuilder;
+		$this->overviewBuilder = $overviewBuilder;
+
+		$overviewBuilder->setFormBuilder($formBuilder);
+		$overviewBuilder->setModelBuilder($modelBuilder);
 
 		$this->buildModel($modelBuilder);
 		$formBuilder->setModelBuilder($modelBuilder);
 
 		$this->buildForm($formBuilder);
 		$this->buildOverview($overviewBuilder);
-
-		$overviewBuilder->setFormBuilder($formBuilder);
-		$overviewBuilder->setModelBuilder($modelBuilder);
 	}
 
 	/**
@@ -94,7 +95,9 @@ abstract class CrudController extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 *
+	 *
+	 * @return \Illuminate\View\View
 	 */
 	public function create()
 	{
@@ -106,6 +109,11 @@ abstract class CrudController extends BaseController
 		return View::make('crud::crud/create', compact('form', 'model', 'action', 'errors'));
 	}
 
+	/**
+	 *
+	 *
+	 * @return \Illuminate\Http\RedirectResponse
+	 */
 	public function store()
 	{
 		$form = $this->getForm();
@@ -124,6 +132,11 @@ abstract class CrudController extends BaseController
 		return Redirect::action(get_called_class() . '@index');
 	}
 
+	/**
+	 *
+	 *
+	 * @return \Illuminate\View\View
+	 */
 	public function edit($id)
 	{
 		$form = $this->getForm();
@@ -135,6 +148,11 @@ abstract class CrudController extends BaseController
 		return View::make('crud::crud/edit', compact('form', 'model', 'action', 'errors'));
 	}
 
+	/**
+	 *
+	 *
+	 * @return \Illuminate\Http\RedirectResponse
+	 */
 	public function update($id)
 	{
 		$form = $this->getForm();
@@ -154,6 +172,11 @@ abstract class CrudController extends BaseController
 		return Redirect::action(get_called_class() . '@index');
 	}
 
+	/**
+	 *
+	 *
+	 * @return \Illuminate\Http\RedirectResponse
+	 */
 	public function destroy($id)
 	{
 		$form = $this->getForm();
