@@ -6,7 +6,7 @@ class CheckableElement extends InputElement
 {
 	/**
 	 * @param array $choices
-	 * @return Element
+	 * @return $this
 	 */
 	public function choices($choices)
 	{

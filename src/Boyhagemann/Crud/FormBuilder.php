@@ -227,4 +227,28 @@ class FormBuilder
 		return $this->addElement($name, 'model', 'choice');
 	}
 
+	/**
+	 * @param $name
+	 * @return ModelElement
+	 */
+	public function modelRadio($name)
+	{
+		return $this->addElement($name, 'model', 'choice', array(
+			'multiple' => true,
+			'expanded' => true,
+		));
+	}
+
+	/**
+	 * @param $name
+	 * @return ModelElement
+	 */
+	public function modelCheckbox($name)
+	{
+		return $this->addElement($name, 'model', 'choice', array(
+			'multiple' => true,
+			'expanded' => false,
+		));
+	}
+
 }

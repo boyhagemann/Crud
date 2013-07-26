@@ -62,7 +62,7 @@ class InputElement
 
 	/**
 	 * @param string $label
-	 * @return InputElement
+	 * @return $this
 	 */
 	public function label($label)
 	{
@@ -72,7 +72,7 @@ class InputElement
 
 	/**
 	 * @param integer $size
-	 * @return InputElement
+	 * @return $this
 	 */
 	public function size($size)
 	{
@@ -81,7 +81,7 @@ class InputElement
 	}
 	/**
 	 * @param string $value
-	 * @return InputElement
+	 * @return $this
 	 */
 	public function value($value)
 	{
@@ -91,7 +91,7 @@ class InputElement
 
 	/**
 	 * @param bool $required
-	 * @return InputElement
+	 * @return $this
 	 */
 	public function required($required = true)
 	{
@@ -105,7 +105,7 @@ class InputElement
 
 	/**
 	 * @param string $rules
-	 * @return InputElement
+	 * @return $this
 	 */
 	public function rules($rules)
 	{
