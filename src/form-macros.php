@@ -76,7 +76,7 @@ Form::macro('formRow', function(FormInterface $form, $errors) {
 			break;
 
 		case 'textarea':
-			$formElement = Form::textarea($name);
+			$formElement = Form::textarea($name, $value);
 			break;
 
 		case 'choice':
@@ -89,20 +89,20 @@ Form::macro('formRow', function(FormInterface $form, $errors) {
 			if($vars['expanded']) {
 
 				if($vars['multiple']) {
-					$formElement = Form::multiRadio($name, $choices);
+					$formElement = Form::multiRadio($name, $choices, $value);
 				}
 				else {
-					$formElement = Form::multiSelect($name, $choices);
+					$formElement = Form::multiSelect($name, $choices, $value);
 				}
 
 			}
 			else {
 
 				if($vars['multiple']) {
-					$formElement = Form::multiCheckbox($name, $choices);
+					$formElement = Form::multiCheckbox($name, $choices, $value);
 				}
 				else {
-					$formElement = Form::select($name, $choices);
+					$formElement = Form::select($name, $choices, $value);
 				}
 
 			}
@@ -113,9 +113,7 @@ Form::macro('formRow', function(FormInterface $form, $errors) {
 
 	$error = $errors ? $errors->first($name, '<span class="error">:message</span>') : '';
 
-	$html = sprintf('<div class="row">%s%s%s</div>', $formLabel, $formElement, $error);
-
-	return $html;
+	return sprintf('<div class="row">%s%s%s</div>', $formLabel, $formElement, $error);
 });
 
 

@@ -112,26 +112,32 @@ class ModelBuilder
             $model = App::make($model);
         }
         
-        $table = $this->table . '_' . $model->getTable();
+        $left = $this->buildNameFromClass($this->name);
+        $right = $this->buildNameFromClass(get_class($model));
         
-        $field = $this->buildNameFromClass($this->name) . '_id';        
-        $field2 = $this->buildNameFromClass(get_class($model)) . '_id';
+        $table = $left . '_' . $right;
+        
+        $field = $left . '_id';        
+        $field2 = $right . '_id';
                 
         $relation = App::make('Boyhagemann\Crud\ModelBuilder\Relation');
+        $relation->table($table);
         $relation->setType($type);
         $relation->name(get_class($model));
+                
+        $blueprint = $relation->getBlueprint();
         
         switch($type) {
 
-            case 'hasMany':
-                $relation->table($table);
-                $relation->column($field, 'integer');        
-                $relation->column($field2, 'integer');
-//                $relation->getBlueprint()->unique(array($name, $field));
-                break;
-            
-            case 'belongsTo':
-                $relation->table($table);                
+            case 'belongsToMany':
+                if(!Schema::hasColumn($table, $field)) {
+                    $blueprint->unsignedInteger($field); 
+                    $blueprint->index($field);
+                }
+                if(!Schema::hasColumn($table, $field2)) {
+                    $blueprint->unsignedInteger($field2);       
+                    $blueprint->index($field2); 
+                }
                 break;
             
         }
@@ -154,6 +160,15 @@ class ModelBuilder
     public function getBlueprint()
     {
         return $this->blueprint;
+    }
+    
+    /**
+     * 
+     * @return array
+     */
+    public function getRelations()
+    {
+        return $this->relations;
     }
 
     /**

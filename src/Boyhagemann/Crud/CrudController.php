@@ -3,6 +3,7 @@
 namespace Boyhagemann\Crud;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Symfony\Component\Form\FormView;
 use View, BaseController, Form, Validator, Input, Redirect, Session;
 
@@ -63,15 +64,24 @@ abstract class CrudController extends BaseController
 	 */
 	public function getModel()
 	{
-		return $this->modelBuilder->build();
+            $model = $this->modelBuilder->build();                
+            foreach($this->modelBuilder->getRelations() as $alias => $relation) {
+                $model = $model->with($alias);
+            }
+
+            return $model;
 	}
 
 	/**
 	 * @return FormView
 	 */
-	public function getForm()
+	public function getForm($values = null)
 	{
-            $this->formBuilder->defaults(Input::old());
+            if(!$values) {
+                $values = Input::old();
+            }
+            
+            $this->formBuilder->defaults($values);
             return $this->formBuilder->build();
 	}
 
@@ -143,10 +153,10 @@ abstract class CrudController extends BaseController
 	 * @return \Illuminate\View\View
 	 */
 	public function edit($id)
-	{
-		$form = $this->getForm();
-		$model = $this->getModel()->findOrFail($id);
-
+	{                
+                $model = $this->getModel()->findOrFail($id);                
+		$form = $this->getForm($model->toArray());
+                
 		$action = get_called_class() . '@update';
 		$errors = Session::get('errors');
 
@@ -169,10 +179,17 @@ abstract class CrudController extends BaseController
                         Input::flash();
 			return Redirect::action(get_called_class() . '@edit', array($model->id))->withErrors($v->messages());
 		}
-
-		foreach($model->getFillable() as $field) {
-			$model->$field = Input::get($field);
-		}
+                
+                foreach(Input::all() as $name => $value) {
+                    
+                    if(in_array($name, $model->getFillable())) {
+			$model->$name = Input::get($name);
+                    }
+                    elseif(method_exists($model, $name) && $model->$name() instanceof Relation) {
+                        $model->$name()->sync($value);
+                    }
+                }
+                
 		$model->save();
 
 		return Redirect::action(get_called_class() . '@index');

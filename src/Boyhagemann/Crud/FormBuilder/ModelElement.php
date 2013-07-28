@@ -17,6 +17,18 @@ class ModelElement extends CheckableElement
 
 	protected $callback;
         
+        public function value($value)
+        {
+            if(is_array($value)) {
+                $key = $this->key ? $this->key : 'id';
+                foreach($value as $data) {
+                    $checked[] = $data[$key];
+                }
+                return parent::value($checked);
+            }
+        }
+
+
         /**
 	 * @param $model
 	 * @return $this
@@ -26,7 +38,7 @@ class ModelElement extends CheckableElement
 		if($this->modelBuilder) {
                     
                     if($this->getOption('multiple')) {
-                        $this->modelBuilder->createRelation($this->name, 'hasMany', $model);
+                        $this->modelBuilder->createRelation($this->name, 'belongsToMany', $model);
                     }
                     else {
                         $this->modelBuilder->createRelation($this->name, 'belongsTo', $model);
