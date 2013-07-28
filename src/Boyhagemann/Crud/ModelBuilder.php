@@ -49,6 +49,12 @@ class ModelBuilder
      * @var array
      */
     protected $relations = array();
+    
+    /**
+     *
+     * @var bool 
+     */
+    protected $timestamps = false;
 
     /**
      * @var array
@@ -147,13 +153,26 @@ class ModelBuilder
         $this->blueprint = new Blueprint($table);
 
         if (!Schema::hasTable($table)) {
-            $this->blueprint->create();
-            $this->blueprint->increments('id');
-            $this->blueprint->timestamps();
+            $this->blueprint->create();          
+            $this->blueprint->increments('id');       
         }
         
         return $this;
     }
+    
+    /**
+     * 
+     * @return $this
+     */
+    public function timestamps($timestamps = true)
+    {
+        $this->timestamps = $timestamps;
+        if($timestamps && !Schema::hasTable($this->table)) {
+            $this->blueprint->timestamps();
+        }
+        return $this;
+    }
+
     /**
      * 
      * @param string $alias
@@ -212,6 +231,11 @@ class ModelBuilder
         return $this->relations[$alias];
     }
     
+    /**
+     * 
+     * @param string $class
+     * @return string
+     */
     protected function buildNameFromClass($class)
     {
         $nameParts = explode('\\', $class);
@@ -268,13 +292,13 @@ class ModelBuilder
      * Build the columns to the database
      */
     public function export()
-    {        
-        $this->getBlueprint()->build(DB::connection(), DB::connection()->getSchemaGrammar());
-        
+    {                
         // When there is no class name, no file has to be written to disk
-        if(!$this->name || $this instanceof ModelBuilder\Relation) {
+        if(!$this->name) {
             return;
-        }        
+        }    
+        
+        $this->getBlueprint()->build(DB::connection(), DB::connection()->getSchemaGrammar());    
         
         $parts = explode('\\', $this->name);
         $filename = '../' . $this->modelPath;
@@ -315,6 +339,8 @@ class ModelBuilder
         // Set the table name
         $class->addProperty('table', $this->table, PropertyGenerator::FLAG_PROTECTED);
 
+        $class->addProperty('timestamps', $this->timestamps);
+        
         // Set the rules
         $class->addProperty('rules', $this->rules);
 

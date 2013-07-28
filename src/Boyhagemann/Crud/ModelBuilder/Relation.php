@@ -3,7 +3,7 @@
 namespace Boyhagemann\Crud\ModelBuilder;
 
 use Boyhagemann\Crud\ModelBuilder;
-use DB;
+use Schema, DB;
 
 class Relation extends ModelBuilder
 {    
@@ -27,6 +27,15 @@ class Relation extends ModelBuilder
     public function getTable()
     {
         return $this->table;
+    }
+    
+    public function export()
+    {
+        if($this->getType() == 'belongsToMany' && Schema::hasTable($this->table)) {
+            return;
+        }
+        
+        $this->getBlueprint()->build(DB::connection(), DB::connection()->getSchemaGrammar());    
     }
 
 }

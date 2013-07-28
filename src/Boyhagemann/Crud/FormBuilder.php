@@ -78,6 +78,7 @@ class FormBuilder
     protected function addElement($name, $element, $type, Array $options = array())
     {
         $reference = $this;
+        
         Event::fire('formBuilder.addElement.pre', compact('name', 'element', 'type', 'options', 'reference'));
         
         switch ($element) {

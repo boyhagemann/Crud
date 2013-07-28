@@ -4,10 +4,8 @@ namespace Boyhagemann\Crud;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
-use Symfony\Component\Form\FormView;
 use View,
     BaseController,
-    Form,
     Validator,
     Input,
     Redirect,
@@ -42,8 +40,6 @@ abstract class CrudController extends BaseController
         $this->overviewBuilder = $overviewBuilder;
 
         $this->buildModel($modelBuilder);
-
-//        $formBuilder->setModelBuilder($modelBuilder);
         $this->buildForm($formBuilder);
 
         $formBuilder->build();
@@ -90,7 +86,7 @@ abstract class CrudController extends BaseController
     }
 
     /**
-     * @return FormView
+     * @return \Symfony\Component\Form\Form
      */
     public function getForm($values = null)
     {
@@ -119,9 +115,9 @@ abstract class CrudController extends BaseController
 
         $overview = $overviewBuilder->build();
 
-        $class = get_called_class();
+        $controller = get_called_class();
 
-        return View::make('crud::crud/index', compact('overview', 'class'));
+        return View::make('crud::crud/index', compact('overview', 'controller'));
     }
 
     /**
@@ -133,10 +129,10 @@ abstract class CrudController extends BaseController
     {
         $form = $this->getForm();
         $model = $this->getModel();
-        $action = get_called_class() . '@store';
         $errors = Session::get('errors');
+        $controller = get_called_class();
 
-        return View::make('crud::crud/create', compact('form', 'model', 'action', 'errors'));
+        return View::make('crud::crud/create', compact('form', 'model', 'controller', 'errors'));
     }
 
     /**
@@ -148,20 +144,22 @@ abstract class CrudController extends BaseController
     {
         $form = $this->getForm();
         $model = $this->getModel();
+        $controller = get_called_class();
 
         $v = Validator::make(Input::all(), $model->rules);
 
         if ($v->fails()) {
             Input::flash();
-            return Redirect::action(get_called_class() . '@create')->withErrors($v->messages());
+            return Redirect::action($controller . '@create')->withErrors($v->messages());
         }
 
-        foreach ($model->getFillable() as $field) {
-            $model->$field = Input::get($field);
-        }
+        $this->prepare($model);
+        
         $model->save();
 
-        return Redirect::action(get_called_class() . '@index');
+        $this->saveRelations($model);
+        
+        return Redirect::action($controller . '@index');
     }
 
     /**
@@ -171,13 +169,12 @@ abstract class CrudController extends BaseController
      */
     public function edit($id)
     {
-        $model = $this->getModelWithRelations()->findOrFail($id);
-        $form = $this->getForm($model->toArray());
+        $model      = $this->getModelWithRelations()->findOrFail($id);
+        $form       = $this->getForm($model->toArray());
+        $controller = get_called_class();
+        $errors     = Session::get('errors');
 
-        $action = get_called_class() . '@update';
-        $errors = Session::get('errors');
-
-        return View::make('crud::crud/edit', compact('form', 'model', 'action', 'errors'));
+        return View::make('crud::crud/edit', compact('form', 'model', 'controller', 'errors'));
     }
 
     /**
@@ -187,30 +184,54 @@ abstract class CrudController extends BaseController
      */
     public function update($id)
     {
-        $form = $this->getForm();
-        $model = $this->getModel()->findOrFail($id);
+        $form       = $this->getForm();
+        $model      = $this->getModel()->findOrFail($id);
+        $controller = get_called_class();
 
         $v = Validator::make(Input::all(), $model->rules);
 
         if ($v->fails()) {
             Input::flash();
-            return Redirect::action(get_called_class() . '@edit', array($model->id))->withErrors($v->messages());
+            return Redirect::action($controller . '@edit', array($model->id))->withErrors($v->messages());
         }
 
+        $this->prepare($model);
+        
+        $model->save();
+
+        $this->saveRelations($model);
+
+        return Redirect::action($controller . '@index');
+    }
+
+    /**
+     * 
+     * @param Model $model
+     */
+    protected function prepare(Model $model)
+    {        
         foreach (Input::all() as $name => $value) {
 
             if (in_array($name, $model->getFillable())) {
-                $model->$name = Input::get($name);
+                $model->$name = $value;
             }
-            elseif (method_exists($model, $name) && $model->$name() instanceof Relations\BelongsToMany) {
+        }
+    }
+
+    /**
+     * 
+     * @param Model $model
+     */
+    protected function saveRelations(Model $model)
+    {        
+        foreach (Input::all() as $name => $value) {
+
+            if (method_exists($model, $name) && $model->$name() instanceof Relations\BelongsToMany) {
                 $model->$name()->sync($value);
             }
         }
-
-        $model->save();
-
-        return Redirect::action(get_called_class() . '@index');
     }
+
 
     /**
      *
@@ -219,12 +240,13 @@ abstract class CrudController extends BaseController
      */
     public function destroy($id)
     {
-        $form = $this->getForm();
-        $model = $this->getModel()->findOrFail($id);
+        $form       = $this->getForm();
+        $model      = $this->getModel()->findOrFail($id);
+        $controller = get_called_class();
 
         $model->delete();
 
-        return Redirect::action(get_called_class() . '@index');
+        return Redirect::action($controller . '@index');
     }
 
 }
