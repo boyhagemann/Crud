@@ -6,173 +6,202 @@ use Zend\Code\Generator\FileGenerator;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 use Illuminate\Database\Schema\Blueprint;
-use DB, Schema, App;
+use DB,
+    Schema,
+    App;
 
 class ModelBuilder
 {
-	/**
-	 * @var string
-	 */
-	protected $name;
+    /**
+     * @var string
+     */
+    protected $name;
 
-	/**
-	 * @var string
-	 */
-	protected $table;
+    /**
+     * @var string
+     */
+    protected $table;
 
-	/**
-	 * @var string
-	 */
-	protected $modelPath = 'app/models';
+    /**
+     * @var string
+     */
+    protected $modelPath = 'app/models';
 
-	/**
-	 * @var Blueprint
-	 */
-	protected $blueprint;
+    /**
+     * @var Blueprint
+     */
+    protected $blueprint;
 
-	/**
-	 * @var ClassGenerator
-	 */
-	protected $generator;
+    /**
+     * @var ClassGenerator
+     */
+    protected $generator;
 
-	/**
-	 * @var array
-	 */
-	protected $columns;
+    /**
+     * @var array
+     */
+    protected $columns;
 
-	/**
-	 * @var array
-	 */
-	protected $relations = array();
+    /**
+     * @var array
+     */
+    protected $relations = array();
 
-	/**
-	 * @var array
-	 */
-	public $rules = array();
+    /**
+     * @var array
+     */
+    public $rules = array();
 
-	/**
-	 * @param FileGenerator $generator
-	 */
-	public function __construct(FileGenerator $generator)
-	{
-		$this->generator = $generator;
-	}
+    /**
+     * @param FileGenerator $generator
+     */
+    public function __construct(FileGenerator $generator)
+    {
+        $this->generator = $generator;
+    }
 
-	/**
-	 * @param string $name
-	 */
-	public function setName($name)
-	{
-		$this->name = $name;
-	}
+    /**
+     * @param string $name
+     * @return $this
+     */
+    public function name($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
 
-	/**
-	 * @param string $table
-	 */
-	public function setTable($table)
-	{
-		$this->table = $table;
-		$this->blueprint = new Blueprint($table);
+    /**
+     * 
+     * @param sting $table
+     * @return $this
+     */
+    public function table($table)
+    {
+        $this->table = $table;
+        $this->blueprint = new Blueprint($table);
 
-		if(!Schema::hasTable($table)) {
-			$this->blueprint->create();
-			$this->blueprint->increments('id');
-			$this->blueprint->timestamps();
-		}
-	}
+        if (!Schema::hasTable($table)) {
+            $this->blueprint->create();
+            $this->blueprint->increments('id');
+            $this->blueprint->timestamps();
+        }
+        
+        return $this;
+    }
 
-	/**
-	 * @return Blueprint
-	 */
-	public function getBlueprint()
-	{
-		return $this->blueprint;
-	}
+    /**
+     * 
+     * @param type $name
+     * @return ModelBuilder
+     */
+    public function relation($name)
+    {
+        if (!isset($this->relations[$name])) {
+            $this->relations[$name] = App::make('Boyhagemann\Crud\ModelBuilder');
+        }
 
-	/**
-	 * @param $field
-	 * @param $rules
-	 */
-	public function validate($field, $rules)
-	{
-		$this->rules[$field] = $rules;
-	}
+        return $this->relations[$name];
+    }
 
-	/**
-	 * @param string $name
-	 * @param string $type
-	 */
-	public function column($name, $type)
-	{
-		$this->columns[$name] = $type;
+    /**
+     * @return Blueprint
+     */
+    public function getBlueprint()
+    {
+        return $this->blueprint;
+    }
 
-		if(!Schema::hasColumn($this->table, $name)) {
-			$column = $this->getBlueprint()->$type($name);
-			if(!isset($this->rules[$name]) || false !== strpos('required', $this->rules[$name])) {
-				$column->nullable();
-			}
-		}
-	}
+    /**
+     * @param $field
+     * @param $rules
+     */
+    public function validate($field, $rules)
+    {
+        $this->rules[$field] = $rules;
+    }
 
-	/**
-	 * Build the columns to the database
-	 */
-	public function export()
-	{
-		$this->getBlueprint()->build(DB::connection(), DB::connection()->getSchemaGrammar());
+    /**
+     * @param string $name
+     * @param string $type
+     * @return $this
+     */
+    public function column($name, $type)
+    {
+        $this->columns[$name] = $type;
 
-		$parts = explode('\\', $this->name);
-		$filename = '../' . $this->modelPath;
-		for($i = 0; $i < count($parts); $i++) {
-			$filename .= '/' . $parts[$i];
-			if($i < count($parts) - 1) {
-				@mkdir($filename);
-			}
-		}
-		$filename .= '.php';
+        if (!Schema::hasColumn($this->table, $name)) {
+            $column = $this->getBlueprint()->$type($name);
+            if (!isset($this->rules[$name]) || false !== strpos('required', $this->rules[$name])) {
+                $column->nullable();
+            }
+        }
+        
+        return $this;
+    }
 
-		$contents = $this->buildFile();
-		file_put_contents($filename, $contents);
-		require_once $filename;
-	}
+    /**
+     * Build the columns to the database
+     */
+    public function export()
+    {
+        $this->getBlueprint()->build(DB::connection(), DB::connection()->getSchemaGrammar());
 
-	/**
-	 * @return Model
-	 */
-	public function build()
-	{
-		return App::make($this->name);
-	}
+        $parts = explode('\\', $this->name);
+        $filename = '../' . $this->modelPath;
+        for ($i = 0; $i < count($parts); $i++) {
+            $filename .= '/' . $parts[$i];
+            if ($i < count($parts) - 1) {
+                @mkdir($filename);
+            }
+        }
+        $filename .= '.php';
 
-	/**
-	 * @return string
-	 */
-	public function buildFile()
-	{
-		$this->generator->setClass($this->name);
-		$class = current($this->generator->getClasses());
-		$class->setExtendedClass('\Eloquent');
+        $contents = $this->buildFile();
+        file_put_contents($filename, $contents);
+        require_once $filename;
+
+        foreach ($this->relations as $relation) {
+            $relation->export();
+        }
+    }
+
+    /**
+     * @return Model
+     */
+    public function build()
+    {
+        return App::make($this->name);
+    }
+
+    /**
+     * @return string
+     */
+    public function buildFile()
+    {
+        $this->generator->setClass($this->name);
+        $class = current($this->generator->getClasses());
+        $class->setExtendedClass('\Eloquent');
 
 
-		// Set the table name
-		$class->addProperty('table', $this->table, PropertyGenerator::FLAG_PROTECTED);
+        // Set the table name
+        $class->addProperty('table', $this->table, PropertyGenerator::FLAG_PROTECTED);
 
-		// Set the rules
-		$class->addProperty('rules', $this->rules);
+        // Set the rules
+        $class->addProperty('rules', $this->rules);
 
-		$class->addProperty('guarded', array('id'), PropertyGenerator::FLAG_PROTECTED);
+        $class->addProperty('guarded', array('id'), PropertyGenerator::FLAG_PROTECTED);
 
-		$fillable = array_keys($this->columns);
-		$class->addProperty('fillable', $fillable, PropertyGenerator::FLAG_PROTECTED);
+        $fillable = array_keys($this->columns);
+        $class->addProperty('fillable', $fillable, PropertyGenerator::FLAG_PROTECTED);
 
-		// Add elements, only for relationships
-		foreach($this->relations as $name => $relation) {
+        // Add elements, only for relationships
+        foreach ($this->relations as $name => $relation) {
 
-			$body = sprintf('return $this->%s(\'%s\');', $relation['type'], $relation['model']);
-			$class->addMethod($name, array(), null, $body);
-		}
+            $body = sprintf('return $this->%s(\'%s\');', $relation['type'], $relation['model']);
+            $class->addMethod($name, array(), null, $body);
+        }
 
-		return $this->generator->generate();
-	}
+        return $this->generator->generate();
+    }
 
 }

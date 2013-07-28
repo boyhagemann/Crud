@@ -43,13 +43,30 @@ class FormBuilder
 	{
 		return $this->modelBuilder;
 	}
+        
+        /**
+         * 
+         * @param array $values
+         * @return $this
+         */
+        public function defaults(Array $values = array())
+        {
+            foreach($this->elements as $name => $element) {
+                if(isset($values[$name])) {
+                    $element->value($values[$name]);
+                }
+            }
+            
+            return $this;
+        }
 
-	/**
+        /**
 	 * @return \Symfony\Component\Form\Form
 	 */
 	public function build()
 	{
 		foreach($this->elements as $name => $element) {
+                    
 			$this->factory->add($name, $element->getType(), $element->getOptions());
 
 			if($this->getModelBuilder() && $element->getRules()) {

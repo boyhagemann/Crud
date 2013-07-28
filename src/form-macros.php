@@ -63,6 +63,7 @@ Form::macro('formRow', function(FormInterface $form, $errors) {
 	$type = $form->getConfig()->getType()->getInnerType()->getName();
 	$name = $vars['name'];
 	$label = $vars['label'] ?: $name;
+        $value = $vars['data'];
 
 	$formLabel = Form::label($name, $label);
 
@@ -71,7 +72,7 @@ Form::macro('formRow', function(FormInterface $form, $errors) {
 		case 'integer':
 		case 'percent':
 		case 'text':
-			$formElement = Form::text($name);
+			$formElement = Form::text($name, $value);
 			break;
 
 		case 'textarea':
@@ -101,7 +102,7 @@ Form::macro('formRow', function(FormInterface $form, $errors) {
 					$formElement = Form::multiCheckbox($name, $choices);
 				}
 				else {
-					$formElement = Form::multiRadio($name, $choices);
+					$formElement = Form::select($name, $choices);
 				}
 
 			}

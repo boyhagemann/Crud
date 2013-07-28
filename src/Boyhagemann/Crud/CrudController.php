@@ -71,7 +71,8 @@ abstract class CrudController extends BaseController
 	 */
 	public function getForm()
 	{
-		return $this->formBuilder->build();
+            $this->formBuilder->defaults(Input::old());
+            return $this->formBuilder->build();
 	}
 
 	/**
@@ -124,6 +125,7 @@ abstract class CrudController extends BaseController
 		$v = Validator::make(Input::all(), $model->rules);
 
 		if($v->fails()) {
+                        Input::flash();
 			return Redirect::action(get_called_class() . '@create')->withErrors($v->messages());
 		}
 
@@ -164,6 +166,7 @@ abstract class CrudController extends BaseController
 		$v = Validator::make(Input::all(), $model->rules);
 
 		if($v->fails()) {
+                        Input::flash();
 			return Redirect::action(get_called_class() . '@edit', array($model->id))->withErrors($v->messages());
 		}
 
