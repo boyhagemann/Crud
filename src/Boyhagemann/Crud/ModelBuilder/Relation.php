@@ -23,4 +23,10 @@ class Relation extends ModelBuilder
     {
         return $this->name;
     }
+    
+    public function getTable()
+    {
+        return $this->table;
+    }
+
 }

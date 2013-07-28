@@ -3,277 +3,229 @@
 namespace Boyhagemann\Crud;
 
 use Symfony\Component\Form\FormBuilder as FormFactory;
-
 use Boyhagemann\Crud\FormBuilder\InputElement;
 use Boyhagemann\Crud\FormBuilder\CheckableElement;
 use Boyhagemann\Crud\FormBuilder\ModelElement;
+use Event;
 
 class FormBuilder
 {
-	/**
-	 * @var ModelBuilder
-	 */
-	protected $modelBuilder;
+    /**
+     * @var FormFactory
+     */
+    protected $factory;
 
-	/**
-	 * @var FormFactory
-	 */
-	protected $factory;
+    /**
+     * @param FormFactory $factory
+     */
+    public function __construct(FormFactory $factory)
+    {
+        $this->factory = $factory;
+    }
 
-	/**
-	 * @param FormFactory $factory
-	 */
-	public function __construct(FormFactory $factory)
-	{
-		$this->factory = $factory;
-	}
-
-	/**
-	 * @param ModelBuilder $modelBuilder
-	 */
-	public function setModelBuilder(ModelBuilder $modelBuilder)
-	{
-		$this->modelBuilder = $modelBuilder;
-	}
-
-	/**
-	 * @return ModelBuilder
-	 */
-	public function getModelBuilder()
-	{
-		return $this->modelBuilder;
-	}
-        
-        /**
-         * 
-         * @param array $values
-         * @return $this
-         */
-        public function defaults(Array $values = array())
-        {
-            foreach($this->elements as $name => $element) {
-                if(isset($values[$name])) {
-                    $element->value($values[$name]);
-                }
+    /**
+     * 
+     * @param array $values
+     * @return $this
+     */
+    public function defaults(Array $values = array())
+    {
+        foreach ($this->elements as $name => $element) {
+            if (isset($values[$name])) {
+                $element->value($values[$name]);
             }
-            
-            return $this;
         }
 
-        /**
-	 * @return \Symfony\Component\Form\Form
-	 */
-	public function build()
-	{
-		foreach($this->elements as $name => $element) {
-                    
-			$this->factory->add($name, $element->getType(), $element->getOptions());
+        return $this;
+    }
 
-			if($this->getModelBuilder() && $element->getRules()) {
-				$this->getModelBuilder()->validate($name, $element->getRules());
-			}
-		}
+    /**
+     * @return \Symfony\Component\Form\Form
+     */
+    public function build()
+    {
+        $reference = $this;
+        $factory = $this->factory;
+        
+        foreach ($this->elements as $name => $element) {
+            
+            Event::fire('formBuilder.buildElement.pre', compact('name', 'element', 'factory', 'reference'));
 
-		return $this->getFactory()->getForm();
-	}
+            $this->factory->add($name, $element->getType(), $element->getOptions());
 
-	/**
-	 * @return mixed
-	 */
-	public function getFactory()
-	{
-		return $this->factory;
-	}
+            Event::fire('formBuilder.buildElement.post', compact('name', 'element', 'factory', 'reference'));
+            
+        }
 
-	/**
-	 * @param       $name
-	 * @param       $element
-	 * @param       $type
-	 * @param array $options
-	 * @return InputElement|CheckableElement|ModelElement
-	 */
-	protected function addElement($name, $element, $type, Array $options = array())
-	{
-		switch($element) {
+        return $this->getFactory()->getForm();
+    }
 
-			case 'input':
-				$element = new InputElement($name, $type, $options);
-				break;
+    /**
+     * @return mixed
+     */
+    public function getFactory()
+    {
+        return $this->factory;
+    }
 
-			case 'checkable':
-				$element = new CheckableElement($name, $type, $options);
-				break;
+    /**
+     * @param       $name
+     * @param       $element
+     * @param       $type
+     * @param array $options
+     * @return InputElement|CheckableElement|ModelElement
+     */
+    protected function addElement($name, $element, $type, Array $options = array())
+    {
+        $reference = $this;
+        Event::fire('formBuilder.addElement.pre', compact('name', 'element', 'type', 'options', 'reference'));
+        
+        switch ($element) {
 
-			case 'model':
-				$element = new ModelElement($name, $type, $options);
-				break;
-		}
+            case 'input':
+                $element = new InputElement($name, $type, $options);
+                break;
 
-                if($this->getModelBuilder()) {
-                    $element->setModelBuilder($this->getModelBuilder());
-                }
-                
-		$this->elements[$name] = $element;
-		return $element;
-	}
+            case 'checkable':
+                $element = new CheckableElement($name, $type, $options);
+                break;
 
-	/**
-	 * @param string $name
-	 * @return InputElement
-	 */
-	public function text($name)
-	{
-		if($this->getModelBuilder()) {
-			$this->getModelBuilder()->column($name, 'string');
-		}
+            case 'model':
+                $element = new ModelElement($name, $type, $options);
+                break;
+        }
 
-		return $this->addElement($name, 'input', 'text');
-	}
+        $this->elements[$name] = $element;
+        
+        Event::fire('formBuilder.addElement.post', compact('name', 'element', 'type', 'options', 'reference'));
+        
+        return $element;
+    }
 
-	/**
-	 * @param $name
-	 * @return InputElement
-	 */
-	public function textarea($name)
-	{
-		if($this->getModelBuilder()) {
-			$this->getModelBuilder()->column($name, 'text');
-		}
+    /**
+     * @param string $name
+     * @return InputElement
+     */
+    public function text($name)
+    {
+        return $this->addElement($name, 'input', 'text');
+    }
 
-		return $this->addElement($name, 'input', 'textarea');
-	}
+    /**
+     * @param $name
+     * @return InputElement
+     */
+    public function textarea($name)
+    {
+        return $this->addElement($name, 'input', 'textarea');
+    }
 
-	/**
-	 * @param $name
-	 * @return InputElement
-	 */
-	public function integer($name)
-	{
-		if($this->getModelBuilder()) {
-			$this->getModelBuilder()->column($name, 'integer');
-		}
+    /**
+     * @param $name
+     * @return InputElement
+     */
+    public function integer($name)
+    {
+        return $this->addElement($name, 'input', 'integer');
+    }
 
-		return $this->addElement($name, 'input', 'integer');
-	}
+    /**
+     * @param $name
+     * @return InputElement
+     */
+    public function percentage($name)
+    {
+        return $this->addElement($name, 'input', 'percent');
+    }
 
-	/**
-	 * @param $name
-	 * @return InputElement
-	 */
-	public function percentage($name)
-	{
-		if($this->getModelBuilder()) {
-			$this->getModelBuilder()->column($name, 'integer');
-		}
+    /**
+     * @param $name
+     * @return CheckableElement
+     */
+    public function select($name)
+    {
+        return $this->addElement($name, 'checkable', 'choice', array(
+                    'multiple' => false,
+                    'expanded' => false,
+        ));
+    }
 
-		return $this->addElement($name, 'input', 'percent');
-	}
+    /**
+     * @param $name
+     * @return CheckableElement
+     */
+    public function multiselect($name)
+    {
+        return $this->addElement($name, 'checkable', 'choice', array(
+                    'multiple' => true,
+                    'expanded' => false,
+        ));
+    }
 
-	/**
-	 * @param $name
-	 * @return CheckableElement
-	 */
-	public function select($name)
-	{
-		if($this->getModelBuilder()) {
-			$this->getModelBuilder()->column($name, 'integer');
-		}
+    /**
+     * @param $name
+     * @return CheckableElement
+     */
+    public function radio($name)
+    {
+        return $this->addElement($name, 'checkable', 'choice', array(
+                    'multiple' => false,
+                    'expanded' => true,
+        ));
+    }
 
-		return $this->addElement($name, 'checkable', 'choice', array(
-			'multiple' => false,
-			'expanded' => false,
-		));
-	}
+    /**
+     * @param $name
+     * @return CheckableElement
+     */
+    public function checkbox($name)
+    {
+        return $this->addElement($name, 'checkable', 'choice', array(
+                    'multiple' => true,
+                    'expanded' => true,
+        ));
+    }
 
-	/**
-	 * @param $name
-	 * @return CheckableElement
-	 */
-	public function multiselect($name)
-	{
-		return $this->addElement($name, 'checkable', 'choice', array(
-			'multiple' => true,
-			'expanded' => false,
-		));
-	}
+    /**
+     * @param $name
+     * @return InputElement
+     */
+    public function submit($name)
+    {
+        return $this->addElement($name, 'input', 'submit');
+    }
 
-	/**
-	 * @param $name
-	 * @return CheckableElement
-	 */
-	public function radio($name)
-	{
-		if($this->getModelBuilder()) {
-			$this->getModelBuilder()->column($name, 'string');
-		}
+    /**
+     * @param $name
+     * @return ModelElement
+     */
+    public function modelSelect($name)
+    {
+        return $this->addElement($name, 'model', 'choice');
+    }
 
-		return $this->addElement($name, 'checkable', 'choice', array(
-			'multiple' => false,
-			'expanded' => true,
-		));
-	}
+    /**
+     * @param $name
+     * @return ModelElement
+     */
+    public function modelRadio($name)
+    {
+        return $this->addElement($name, 'model', 'choice', array(
+                    'multiple' => true,
+                    'expanded' => true,
+        ));
+    }
 
-	/**
-	 * @param $name
-	 * @return CheckableElement
-	 */
-	public function checkbox($name)
-	{
-		if($this->getModelBuilder()) {
-			$this->getModelBuilder()->column($name, 'string');
-		}
-
-		return $this->addElement($name, 'checkable', 'choice', array(
-			'multiple' => true,
-			'expanded' => true,
-		));
-	}
-
-	/**
-	 * @param $name
-	 * @return InputElement
-	 */
-	public function submit($name)
-	{
-		return $this->addElement($name, 'input', 'submit');
-	}
-
-
-	/**
-	 * @param $name
-	 * @return ModelElement
-	 */
-	public function modelSelect($name)
-	{
-		if($this->getModelBuilder()) {
-			$this->getModelBuilder()->column($name, 'integer');
-		}
-                
-		return $this->addElement($name, 'model', 'choice');
-	}
-
-	/**
-	 * @param $name
-	 * @return ModelElement
-	 */
-	public function modelRadio($name)
-	{
-		return $this->addElement($name, 'model', 'choice', array(
-			'multiple' => true,
-			'expanded' => true,
-		));
-	}
-
-	/**
-	 * @param $name
-	 * @return ModelElement
-	 */
-	public function modelCheckbox($name)
-	{                
-		return $this->addElement($name, 'model', 'choice', array(
-			'multiple' => true,
-			'expanded' => false,
-		));
-	}
+    /**
+     * @param $name
+     * @return ModelElement
+     */
+    public function modelCheckbox($name)
+    {
+        return $this->addElement($name, 'model', 'choice', array(
+                    'multiple' => true,
+                    'expanded' => false,
+        ));
+    }
 
 }

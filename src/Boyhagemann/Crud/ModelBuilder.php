@@ -5,8 +5,10 @@ namespace Boyhagemann\Crud;
 use Zend\Code\Generator\FileGenerator;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\PropertyGenerator;
+use Boyhagemann\Crud\FormBuilder\ModelElement;
 use Illuminate\Database\Schema\Blueprint;
-use DB,
+use Event,
+    DB,
     Schema,
     App,
     Str;
@@ -59,6 +61,69 @@ class ModelBuilder
     public function __construct(FileGenerator $generator)
     {
         $this->generator = $generator;
+        
+        Event::listen('formBuilder.addElement.post', array($this, 'postAddElement'));
+        Event::listen('formBuilder.buildElement.post', array($this, 'postBuildElement'));        
+    }
+    
+    /**
+     * 
+     * @param type $name
+     * @param type $element
+     * @param type $type
+     * @param type $options
+     * @param type $formBuilder
+     */
+    public function postAddElement($name, $element, $type, $options, $formBuilder)
+    {            
+        switch($type) {
+            
+            case 'text':                
+                $this->column($name, 'string');
+                break;
+            
+            case 'textarea':  
+                $this->column($name, 'text');
+                break;
+            
+            case 'percent':  
+            case 'integer':  
+                $this->column($name, 'integer');
+                break;
+            
+            case 'choice':
+                
+                if(!isset($options['multiple']) || $options['multiple'] == false) {
+                    $this->column($name, 'integer');          
+                }
+                break;           
+        }
+        
+    }
+    
+    /**
+     * 
+     * @param type $name
+     * @param \Boyhagemann\Crud\FormBuilder\InputElement $element
+     * @param type $formBuilder
+     * @param type $formFactory
+     */
+    public function postBuildElement($name, $element, $formBuilder, $formFactory)
+    {        
+        
+        if ($element instanceof ModelElement && $element->getModel()) {
+
+            if ($element->getOption('multiple')) {
+                $this->createRelation($name, 'belongsToMany', $element->getModel());
+            }
+            else {
+                $this->createRelation($name, 'belongsTo', $element->getModel());
+            }
+        }
+        
+        if ($element->getRules()) {
+            $this->validate($name, $element->getRules());
+        }
     }
 
     /**
@@ -115,7 +180,7 @@ class ModelBuilder
         $left = $this->buildNameFromClass($this->name);
         $right = $this->buildNameFromClass(get_class($model));
         
-        $table = $left . '_' . $right;
+        $table = $left . '_' . $alias;
         
         $field = $left . '_id';        
         $field2 = $right . '_id';
@@ -262,7 +327,7 @@ class ModelBuilder
         foreach ($this->relations as $alias => $relation) {
 
             $docblock = '@return \Illuminate\Database\Eloquent\Collection';
-            $body = sprintf('return $this->%s(\'%s\');', $relation->getType(), $relation->getName());            
+            $body = sprintf('return $this->%s(\'%s\', \'%s\');', $relation->getType(), $relation->getName(), $relation->getTable());            
             $class->addMethod($alias, array(), null, $body, $docblock);
         }
 

@@ -43,7 +43,7 @@ abstract class CrudController extends BaseController
 
         $this->buildModel($modelBuilder);
 
-        $formBuilder->setModelBuilder($modelBuilder);
+//        $formBuilder->setModelBuilder($modelBuilder);
         $this->buildForm($formBuilder);
 
         $formBuilder->build();
@@ -70,14 +70,23 @@ abstract class CrudController extends BaseController
      */
     public function getModel()
     {
-        $model = $this->modelBuilder->build();
+        return $this->modelBuilder->build();
+    }
+    
+    /**
+     * 
+     * @return Model
+     */
+    public function getModelWithRelations()
+    {
+        $model = $this->getModel();
         foreach ($this->modelBuilder->getRelations() as $alias => $relation) {
             if($relation->getType() == 'belongsToMany') {
                 $model = $model->with($alias);
             }
         }
 
-        return $model;
+        return $model;        
     }
 
     /**
@@ -162,7 +171,7 @@ abstract class CrudController extends BaseController
      */
     public function edit($id)
     {
-        $model = $this->getModel()->findOrFail($id);
+        $model = $this->getModelWithRelations()->findOrFail($id);
         $form = $this->getForm($model->toArray());
 
         $action = get_called_class() . '@update';
