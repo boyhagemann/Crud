@@ -22,16 +22,16 @@ class ModelElement extends CheckableElement
 	 * @return $this
 	 */
 	public function model($model)
-	{            
+	{                
 		if($this->modelBuilder) {
                     
-                        if($this->getOption('multiple')) {
-                            $this->modelBuilder->createRelation($this->name, 'hasMany', $model);
-                        }
-                        else {
-                            $this->modelBuilder->createRelation($this->name, 'belongsTo', $model);
-                        }
-                    
+                    if($this->getOption('multiple')) {
+                        $this->modelBuilder->createRelation($this->name, 'hasMany', $model);
+                    }
+                    else {
+                        $this->modelBuilder->createRelation($this->name, 'belongsTo', $model);
+                    }
+
 		}
                 
 		$this->model = $model;
@@ -71,22 +71,40 @@ class ModelElement extends CheckableElement
 	 */
 	public function getOptions()
 	{
-		if(is_string($this->model)) {
-			$this->model = App::make($this->model);
-		}
-
-		$q = $this->model->query();
-
-		if($this->callback) {
-			$this->callback($q);
-		}
-
-		$key = $this->key ? $this->key : 'id';
-		$field = $this->field ? $this->field : "title";
-		$this->options['choices'] = $q->lists($field, $key);
-
-		return parent::getOptions();
+            if(!$this->hasOption('choices')) {
+                $this->options['choices'] = $this->buildChoices();
+            }
+            
+            return parent::getOptions();
 	}
+        
+        protected function buildChoices()
+        {                
+            if(is_string($this->model)) {
+                    $this->model = App::make($this->model);
+            }
+
+            $q = $this->model->query();
+
+            if($this->callback) {
+                    $this->callback($q);
+            }
+
+            $key = $this->key ? $this->key : 'id';
+            $field = $this->field ? $this->field : "title";
+
+            return $q->lists($field, $key);            
+        }
+        
+        /**
+         * 
+         * @param string $name
+         * @return bool
+         */
+        public function hasOption($name)
+        {
+            return isset($this->options[$name]);            
+        }
         
         /**
          * 
@@ -94,7 +112,11 @@ class ModelElement extends CheckableElement
          * @return mixed
          */
         public function getOption($name)
-        {
+        {            
+            if(!$this->hasOption($name)) {
+                return;
+            }
+            
             return $this->options[$name];
         }
 

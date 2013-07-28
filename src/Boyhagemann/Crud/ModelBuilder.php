@@ -107,7 +107,7 @@ class ModelBuilder
      * @return ModelBuilder
      */
     public function createRelation($alias, $type, $model)
-    {                      
+    {                 
         if(is_string($model)) {
             $model = App::make($model);
         }
@@ -128,6 +128,10 @@ class ModelBuilder
                 $relation->column($field, 'integer');        
                 $relation->column($field2, 'integer');
 //                $relation->getBlueprint()->unique(array($name, $field));
+                break;
+            
+            case 'belongsTo':
+                $relation->table($table);                
                 break;
             
         }
@@ -186,11 +190,11 @@ class ModelBuilder
     public function export()
     {        
         $this->getBlueprint()->build(DB::connection(), DB::connection()->getSchemaGrammar());
-
+        
         // When there is no class name, no file has to be written to disk
-        if(!$this->name) {
+        if(!$this->name || $this instanceof ModelBuilder\Relation) {
             return;
-        }
+        }        
         
         $parts = explode('\\', $this->name);
         $filename = '../' . $this->modelPath;
@@ -228,7 +232,6 @@ class ModelBuilder
         $class = current($this->generator->getClasses());
         $class->setExtendedClass('\Eloquent');
 
-
         // Set the table name
         $class->addProperty('table', $this->table, PropertyGenerator::FLAG_PROTECTED);
 
@@ -236,16 +239,16 @@ class ModelBuilder
         $class->addProperty('rules', $this->rules);
 
         $class->addProperty('guarded', array('id'), PropertyGenerator::FLAG_PROTECTED);
-
+        
         $fillable = array_keys($this->columns);
         $class->addProperty('fillable', $fillable, PropertyGenerator::FLAG_PROTECTED);
 
         // Add elements, only for relationships
         foreach ($this->relations as $alias => $relation) {
 
-            $body = sprintf('return $this->%s(\'%s\');', $relation->getType(), $relation->getName());
-            
-            $class->addMethod($alias, array(), null, $body);
+            $docblock = '@return \Illuminate\Database\Eloquent\Collection';
+            $body = sprintf('return $this->%s(\'%s\');', $relation->getType(), $relation->getName());            
+            $class->addMethod($alias, array(), null, $body, $docblock);
         }
 
         return $this->generator->generate();

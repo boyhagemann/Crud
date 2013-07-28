@@ -3,9 +3,10 @@
 namespace Boyhagemann\Crud\ModelBuilder;
 
 use Boyhagemann\Crud\ModelBuilder;
+use DB;
 
 class Relation extends ModelBuilder
-{
+{    
     protected $type;
     
     public function getType()
@@ -22,5 +23,4 @@ class Relation extends ModelBuilder
     {
         return $this->name;
     }
-
 }
