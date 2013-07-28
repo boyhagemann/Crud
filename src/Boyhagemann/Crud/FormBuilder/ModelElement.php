@@ -16,13 +16,24 @@ class ModelElement extends CheckableElement
 	protected $field;
 
 	protected $callback;
-
-	/**
+        
+        /**
 	 * @param $model
 	 * @return $this
 	 */
 	public function model($model)
-	{
+	{            
+		if($this->modelBuilder) {
+                    
+                        if($this->getOption('multiple')) {
+                            $this->modelBuilder->createRelation($this->name, 'hasMany', $model);
+                        }
+                        else {
+                            $this->modelBuilder->createRelation($this->name, 'belongsTo', $model);
+                        }
+                    
+		}
+                
 		$this->model = $model;
 		return $this;
 	}
@@ -76,4 +87,15 @@ class ModelElement extends CheckableElement
 
 		return parent::getOptions();
 	}
+        
+        /**
+         * 
+         * @param string $name
+         * @return mixed
+         */
+        public function getOption($name)
+        {
+            return $this->options[$name];
+        }
+
 }

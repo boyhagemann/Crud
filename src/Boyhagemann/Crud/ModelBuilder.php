@@ -8,7 +8,8 @@ use Zend\Code\Generator\PropertyGenerator;
 use Illuminate\Database\Schema\Blueprint;
 use DB,
     Schema,
-    App;
+    App,
+    Str;
 
 class ModelBuilder
 {
@@ -88,20 +89,60 @@ class ModelBuilder
         
         return $this;
     }
+    /**
+     * 
+     * @param string $alias
+     * @return ModelBuilder
+     */
+    public function relation($alias)
+    {  
+        return $this->relations[$alias];        
+    }
 
     /**
      * 
-     * @param type $name
+     * @param string $name
+     * @param string $type
+     * @param string|Model $model
      * @return ModelBuilder
      */
-    public function relation($name)
-    {
-        if (!isset($this->relations[$name])) {
-            $this->relations[$name] = App::make('Boyhagemann\Crud\ModelBuilder');
+    public function createRelation($alias, $type, $model)
+    {                      
+        if(is_string($model)) {
+            $model = App::make($model);
+        }
+        
+        $table = $this->table . '_' . $model->getTable();
+        
+        $field = $this->buildNameFromClass($this->name) . '_id';        
+        $field2 = $this->buildNameFromClass(get_class($model)) . '_id';
+                
+        $relation = App::make('Boyhagemann\Crud\ModelBuilder\Relation');
+        $relation->setType($type);
+        $relation->name(get_class($model));
+        
+        switch($type) {
+
+            case 'hasMany':
+                $relation->table($table);
+                $relation->column($field, 'integer');        
+                $relation->column($field2, 'integer');
+//                $relation->getBlueprint()->unique(array($name, $field));
+                break;
+            
         }
 
-        return $this->relations[$name];
+        $this->relations[$alias] = $relation;
+        
+        return $this->relations[$alias];
     }
+    
+    protected function buildNameFromClass($class)
+    {
+        $nameParts = explode('\\', $class);
+        return strtolower(end($nameParts));
+    }
+
 
     /**
      * @return Blueprint
@@ -143,9 +184,14 @@ class ModelBuilder
      * Build the columns to the database
      */
     public function export()
-    {
+    {        
         $this->getBlueprint()->build(DB::connection(), DB::connection()->getSchemaGrammar());
 
+        // When there is no class name, no file has to be written to disk
+        if(!$this->name) {
+            return;
+        }
+        
         $parts = explode('\\', $this->name);
         $filename = '../' . $this->modelPath;
         for ($i = 0; $i < count($parts); $i++) {
@@ -195,10 +241,11 @@ class ModelBuilder
         $class->addProperty('fillable', $fillable, PropertyGenerator::FLAG_PROTECTED);
 
         // Add elements, only for relationships
-        foreach ($this->relations as $name => $relation) {
+        foreach ($this->relations as $alias => $relation) {
 
-            $body = sprintf('return $this->%s(\'%s\');', $relation['type'], $relation['model']);
-            $class->addMethod($name, array(), null, $body);
+            $body = sprintf('return $this->%s(\'%s\');', $relation->getType(), $relation->getName());
+            
+            $class->addMethod($alias, array(), null, $body);
         }
 
         return $this->generator->generate();

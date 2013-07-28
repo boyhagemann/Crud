@@ -2,6 +2,8 @@
 
 namespace Boyhagemann\Crud\FormBuilder;
 
+use Boyhagemann\Crud\ModelBuilder;
+
 class InputElement
 {
 	/**
@@ -39,6 +41,14 @@ class InputElement
 		$this->name = $name;
 		$this->type = $type;
 		$this->options = $options;
+	}
+
+	/**
+	 * @param ModelBuilder $modelBuilder
+	 */
+	public function setModelBuilder(ModelBuilder $modelBuilder)
+	{
+		$this->modelBuilder = $modelBuilder;
 	}
 
 	/**

@@ -109,6 +109,10 @@ class FormBuilder
 				break;
 		}
 
+                if($this->getModelBuilder()) {
+                    $element->setModelBuilder($this->getModelBuilder());
+                }
+                
 		$this->elements[$name] = $element;
 		return $element;
 	}
@@ -261,7 +265,7 @@ class FormBuilder
 	 * @return ModelElement
 	 */
 	public function modelCheckbox($name)
-	{
+	{                
 		return $this->addElement($name, 'model', 'choice', array(
 			'multiple' => true,
 			'expanded' => false,
