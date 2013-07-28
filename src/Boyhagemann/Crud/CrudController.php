@@ -62,60 +62,20 @@ abstract class CrudController extends BaseController
     abstract public function buildModel(ModelBuilder $modelBuilder);
 
     /**
-     * @return Model
-     */
-    public function getModel()
-    {
-        return $this->modelBuilder->build();
-    }
-    
-    /**
-     * 
-     * @return Model
-     */
-    public function getModelWithRelations()
-    {
-        $model = $this->getModel();
-        foreach ($this->modelBuilder->getRelations() as $alias => $relation) {
-            if($relation->getType() == 'belongsToMany') {
-                $model = $model->with($alias);
-            }
-        }
-
-        return $model;        
-    }
-
-    /**
-     * @return \Symfony\Component\Form\Form
-     */
-    public function getForm($values = null)
-    {
-        if (!$values) {
-            $values = Input::old();
-        }
-
-        $this->formBuilder->defaults($values);
-        return $this->formBuilder->build();
-    }
-
-    /**
      * @return mixed
      */
     public function index()
     {
         $model = $this->modelBuilder->build();
         $form = $this->formBuilder->build();
-
         $overviewBuilder = $this->overviewBuilder;
+        $controller = get_called_class();
+
         $overviewBuilder->setForm($form);
         $overviewBuilder->setModel($model);
-
         $this->buildOverview($overviewBuilder);
 
-
         $overview = $overviewBuilder->build();
-
-        $controller = get_called_class();
 
         return View::make('crud::crud/index', compact('overview', 'controller'));
     }
@@ -154,11 +114,11 @@ abstract class CrudController extends BaseController
         }
 
         $this->prepare($model);
-        
+
         $model->save();
 
         $this->saveRelations($model);
-        
+
         return Redirect::action($controller . '@index');
     }
 
@@ -169,10 +129,10 @@ abstract class CrudController extends BaseController
      */
     public function edit($id)
     {
-        $model      = $this->getModelWithRelations()->findOrFail($id);
-        $form       = $this->getForm($model->toArray());
+        $model = $this->getModelWithRelations()->findOrFail($id);
+        $form = $this->getForm($model->toArray());
         $controller = get_called_class();
-        $errors     = Session::get('errors');
+        $errors = Session::get('errors');
 
         return View::make('crud::crud/edit', compact('form', 'model', 'controller', 'errors'));
     }
@@ -184,8 +144,8 @@ abstract class CrudController extends BaseController
      */
     public function update($id)
     {
-        $form       = $this->getForm();
-        $model      = $this->getModel()->findOrFail($id);
+        $form = $this->getForm();
+        $model = $this->getModel()->findOrFail($id);
         $controller = get_called_class();
 
         $v = Validator::make(Input::all(), $model->rules);
@@ -196,7 +156,7 @@ abstract class CrudController extends BaseController
         }
 
         $this->prepare($model);
-        
+
         $model->save();
 
         $this->saveRelations($model);
@@ -205,11 +165,64 @@ abstract class CrudController extends BaseController
     }
 
     /**
+     *
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy($id)
+    {
+        $form = $this->getForm();
+        $model = $this->getModel()->findOrFail($id);
+        $controller = get_called_class();
+
+        $model->delete();
+
+        return Redirect::action($controller . '@index');
+    }
+
+    /**
+     * @return Model
+     */
+    public function getModel()
+    {
+        return $this->modelBuilder->build();
+    }
+
+    /**
+     * 
+     * @return Model
+     */
+    public function getModelWithRelations()
+    {
+        $model = $this->getModel();
+        foreach ($this->modelBuilder->getRelations() as $alias => $relation) {
+            if ($relation->getType() == 'belongsToMany') {
+                $model = $model->with($alias);
+            }
+        }
+
+        return $model;
+    }
+
+    /**
+     * @return \Symfony\Component\Form\Form
+     */
+    public function getForm($values = null)
+    {
+        if (!$values) {
+            $values = Input::old();
+        }
+
+        $this->formBuilder->defaults($values);
+        return $this->formBuilder->build();
+    }
+
+    /**
      * 
      * @param Model $model
      */
     protected function prepare(Model $model)
-    {        
+    {
         foreach (Input::all() as $name => $value) {
 
             if (in_array($name, $model->getFillable())) {
@@ -223,30 +236,13 @@ abstract class CrudController extends BaseController
      * @param Model $model
      */
     protected function saveRelations(Model $model)
-    {        
+    {
         foreach (Input::all() as $name => $value) {
 
             if (method_exists($model, $name) && $model->$name() instanceof Relations\BelongsToMany) {
                 $model->$name()->sync($value);
             }
         }
-    }
-
-
-    /**
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function destroy($id)
-    {
-        $form       = $this->getForm();
-        $model      = $this->getModel()->findOrFail($id);
-        $controller = get_called_class();
-
-        $model->delete();
-
-        return Redirect::action($controller . '@index');
     }
 
 }
