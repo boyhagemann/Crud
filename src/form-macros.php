@@ -64,7 +64,7 @@ Form::macro('formRow', function(FormInterface $form, $errors) {
 	$name = $vars['name'];
 	$label = $vars['label'] ?: $name;
         $value = $vars['data'];
-
+        
 	$formLabel = Form::label($name, $label);
 
 	switch($type) {

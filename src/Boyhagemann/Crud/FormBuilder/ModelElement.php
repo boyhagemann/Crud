@@ -20,6 +20,7 @@ class ModelElement extends CheckableElement
         public function value($value)
         {
             if(is_array($value)) {
+                $checked = array();
                 $key = $this->key ? $this->key : 'id';
                 foreach($value as $data) {
                     $checked[] = $data[$key];

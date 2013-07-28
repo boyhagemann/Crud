@@ -245,6 +245,10 @@ class FormBuilder
 	 */
 	public function modelSelect($name)
 	{
+		if($this->getModelBuilder()) {
+			$this->getModelBuilder()->column($name, 'integer');
+		}
+                
 		return $this->addElement($name, 'model', 'choice');
 	}
 
