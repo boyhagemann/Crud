@@ -133,7 +133,15 @@ class FormBuilder
 		return $this;
 	}
 
-    /**
+        public function action($action)
+        {
+            $this->factory->setAction($action);
+        }
+
+
+
+
+        /**
      * @param string $name
      * @return InputElement
      */

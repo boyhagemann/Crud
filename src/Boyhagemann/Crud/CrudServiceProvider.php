@@ -43,6 +43,12 @@ class CrudServiceProvider extends ServiceProvider {
 		});
 
 		require_once(__DIR__ . '/../../form-macros.php');
+                
+                
+                \Route::get('crud/unmanaged', 'Boyhagemann\Crud\Manager\ManagerController@unmanaged');
+                \Route::get('crud/manage/{class}', 'Boyhagemann\Crud\Manager\ManagerController@manage')->where('class', '(.*)');
+                \Route::post('crud/create-controller', 'Boyhagemann\Crud\Manager\ManagerController@createController');
+                \Route::get('crud/managed', 'Boyhagemann\Crud\Manager\ManagerController@managed');
 	}
 
 	/**

@@ -8,21 +8,21 @@ use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 
+use Boyhagemann\Crud\CrudController;
+
 use Boyhagemann\Crud\FormBuilder;
 use Boyhagemann\Crud\ModelBuilder;
 
 class Controller
 {
 	/**
-	 * @var ClassGenerator
+	 * @var FileGenerator
 	 */
 	protected $generator;
+        
+        protected $controller;
 
-	protected $formBuilder;
-
-	protected $modelBuilder;
-
-	/**
+        /**
 	 * @param FileGenerator $generator
 	 */
 	public function __construct(FileGenerator $generator)
@@ -30,39 +30,15 @@ class Controller
 		$this->generator = $generator;
 	}
 
-	/**
-	 * @param FormBuilder $formBuilder
-	 */
-	public function setFormBuilder(FormBuilder $formBuilder) {
-		$this->formBuilder = $formBuilder;
-	}
-
-	/**
-	 * @return FormBuilder
-	 */
-	public function getFormBuilder() {
-		return $this->formBuilder;
-	}
-
-	/**
-	 * @param ModelBuilder $modelBuilder
-	 */
-	public function setModelBuilder(ModelBuilder $modelBuilder) {
-		$this->modelBuilder = $modelBuilder;
-	}
-
-	/**
-	 * @return ModelBuilder
-	 */
-	public function getModelBuilder() {
-		return $this->modelBuilder;
-	}
-
-
+        public function setController(CrudController $controller)
+        {
+            $this->controller = $controller;
+        }
 
 	public function generate()
 	{
-		$className = $this->modelBuilder->getName() . 'Controller';
+            $modelBuilder = $this->controller->getModelBuilder();
+		$className = $modelBuilder->getName() . 'Controller';
 
 		$class = new ClassGenerator();
 		$class->setName($className);
@@ -73,12 +49,29 @@ class Controller
 		$body = $this->generateFormBuilderBody();
 		$docblock = '@param FormBuilder $fb';
 		$class->addMethod('buildForm', array($param), MethodGenerator::FLAG_PUBLIC, $body, $docblock);
+                
+		$param = new ParameterGenerator();
+		$param->setName('mb')->setType('ModelBuilder');
+		$body = '';
+		$docblock = '@param ModelBuilder $mb';
+		$class->addMethod('buildModel', array($param), MethodGenerator::FLAG_PUBLIC, $body, $docblock);
+                                
+		$param = new ParameterGenerator();
+		$param->setName('ob')->setType('OverviewBuilder');
+		$body = '';
+		$docblock = '@param OverviewBuilder $ob';
+		$class->addMethod('buildOverview', array($param), MethodGenerator::FLAG_PUBLIC, $body, $docblock);
 
 
-		$this->generator->setUse('Boyhagemann\Crud\CrudController');
 		$this->generator->setClass($class);
+                $this->generator->setUses(array(
+                    'Boyhagemann\Crud\CrudController',
+                    'Boyhagemann\Crud\FormBuilder',
+                    'Boyhagemann\Crud\ModelBuilder',
+                    'Boyhagemann\Crud\OverviewBuilder',
+                ));
 
-		var_dump($this->generator->generate()); exit;
+		return $this->generator->generate();
 	}
 
 	/**
@@ -86,15 +79,18 @@ class Controller
 	 */
 	protected function generateFormBuilderBody()
 	{
+            $formBuilder = $this->controller->getFormBuilder();
 		$parts = array();
 
-		foreach($this->formBuilder->elements as $element) {
+		foreach($formBuilder->elements as $element) {
 			$parts[] = '$fb->' . $this->generateFormBuilderChain($element);
 		}
 
 		return implode(PHP_EOL, $parts);
 	}
 
+                
+        
 	/**
 	 * @param FormBuilder\InputElement $element
 	 * @return string
@@ -122,7 +118,7 @@ class Controller
 			$parts[] = $part;
 		}
 
-		return implode('->', $parts);
+		return implode('->', $parts) . ';';
 	}
 
 }

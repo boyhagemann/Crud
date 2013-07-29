@@ -60,6 +60,33 @@ abstract class CrudController extends BaseController
      * @param OverviewBuilder $overviewBuilder
      */
     abstract public function buildModel(ModelBuilder $modelBuilder);
+    
+    /**
+     * 
+     * @return ModelBuilder
+     */
+    public function getModelBuilder()
+    {
+        return $this->modelBuilder;
+    }
+    
+    /**
+     * 
+     * @return FormBuilder
+     */
+    public function getFormBuilder()
+    {
+        return $this->formBuilder;
+    }
+    
+    /**
+     * 
+     * @return OverviewBuilder
+     */
+    public function getOverviewBuilder()
+    {
+        return $this->overviewBuilder;
+    }    
 
     /**
      * @return mixed

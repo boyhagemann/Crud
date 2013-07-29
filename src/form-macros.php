@@ -11,8 +11,9 @@ Form::macro('render', function(FormInterface $form, Model $model = null) {
 
 	$view = $form->createView();
 
+        $options = array();
 	$options = array(
-		'action' => $view->vars['action'],
+		'url' => $view->vars['action'],
 	);
 
 	if($model) {
@@ -37,7 +38,7 @@ Form::macro('render', function(FormInterface $form, Model $model = null) {
  * and add a submit button.
  * 
  */
-Form::macro('renderFields', function(FormInterface $form, $errors) {
+Form::macro('renderFields', function(FormInterface $form, $errors = null) {
 
 	$html = '';
 	
@@ -55,7 +56,7 @@ Form::macro('renderFields', function(FormInterface $form, $errors) {
  * It converts the Symfony field elements to Laravel Form ones.
  * 
  */
-Form::macro('formRow', function(FormInterface $form, $errors) {
+Form::macro('formRow', function(FormInterface $form, $errors = null) {
 
 	$html = '';
 	$view = $form->createView();
