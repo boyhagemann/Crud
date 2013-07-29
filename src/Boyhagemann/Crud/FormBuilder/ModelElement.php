@@ -113,6 +113,10 @@ class ModelElement extends CheckableElement
 
     protected function buildChoices()
     {
+		if(!$this->model) {
+			return;
+		}
+
         if (is_string($this->model)) {
             $this->model = App::make($this->model);
         }

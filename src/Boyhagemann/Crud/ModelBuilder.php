@@ -5,6 +5,7 @@ namespace Boyhagemann\Crud;
 use Zend\Code\Generator\FileGenerator;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\PropertyGenerator;
+use Boyhagemann\Crud\FormBuilder\InputElement;
 use Boyhagemann\Crud\FormBuilder\ModelElement;
 use Illuminate\Database\Schema\Blueprint;
 use Event,
@@ -76,12 +77,13 @@ class ModelBuilder
      * 
      * @param type $name
      * @param type $element
-     * @param type $type
-     * @param type $options
      * @param type $formBuilder
      */
-    public function postAddElement($name, $element, $type, $options, $formBuilder)
-    {            
+    public function postAddElement($name, InputElement $element, $formBuilder)
+    {
+		$options = $element->getOptions();
+		$type = $element->getType();
+
         switch($type) {
             
             case 'text':                
@@ -97,6 +99,8 @@ class ModelBuilder
                 $this->column($name, 'integer');
                 break;
             
+			case 'select':
+			case 'modelSelect':
             case 'choice':
                 
                 if(!isset($options['multiple']) || $options['multiple'] == false) {
@@ -115,8 +119,7 @@ class ModelBuilder
      * @param type $formFactory
      */
     public function postBuildElement($name, $element, $formBuilder, $formFactory)
-    {        
-        
+    {
         if ($element instanceof ModelElement && $element->getModel()) {
 
             if ($element->getOption('multiple')) {

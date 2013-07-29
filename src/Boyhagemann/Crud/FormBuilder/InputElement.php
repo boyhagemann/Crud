@@ -17,6 +17,11 @@ class InputElement
 	protected $type;
 
 	/**
+	 * @var string
+	 */
+	protected $formType;
+
+	/**
 	 * @var array
 	 */
 	protected $options;
@@ -28,12 +33,14 @@ class InputElement
 
 	/**
 	 * @param       $name
+	 * @param       $formType
 	 * @param       $type
 	 * @param array $options
 	 */
-	public function __construct($name, $type, Array $options = array())
+	public function __construct($name, $formType, $type, Array $options = array())
 	{
 		$this->name = $name;
+		$this->formType = $formType;
 		$this->type = $type;
 		$this->options = $options;
 	}
@@ -44,6 +51,8 @@ class InputElement
 			'name' => $this->name,
 			'type' => $this->type,
 			'rules' => $this->rules,
+			'label' => $this->getOption('label'),
+			'size' => $this->getOption('max_length'),
 		);
 	}
 
@@ -56,17 +65,41 @@ class InputElement
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getFormType()
+	{
+		return $this->formType;
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getOptions()
 	{
 		return $this->options;
 	}
-        
-        public function getName()
-        {
-            return $this->name;
-        }
+
+	/**
+	 * @param string $name
+	 * @return mixed|null
+	 */
+	public function getOption($name)
+	{
+		if(!isset($this->options[$name])) {
+			return;
+		}
+
+		return $this->options[$name];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
 
         /**
 	 * @return array

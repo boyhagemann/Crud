@@ -51,7 +51,7 @@ class FormBuilder
             
             Event::fire('formBuilder.buildElement.pre', compact('name', 'element', 'factory', 'reference'));
 
-            $this->factory->add($name, $element->getType(), $element->getOptions());
+            $this->factory->add($name, $element->getFormType(), $element->getOptions());
 
             Event::fire('formBuilder.buildElement.post', compact('name', 'element', 'factory', 'reference'));
             
@@ -69,36 +69,19 @@ class FormBuilder
     }
 
     /**
-     * @param       $name
      * @param       $element
-     * @param       $type
-     * @param array $options
      * @return InputElement|CheckableElement|ModelElement
      */
-    protected function addElement($name, $element, $type, Array $options = array())
+    protected function addElement(InputElement $element)
     {
         $reference = $this;
+		$name = $element->getName();
         
-        Event::fire('formBuilder.addElement.pre', compact('name', 'element', 'type', 'options', 'reference'));
-        
-        switch ($element) {
-
-            case 'input':
-                $element = new InputElement($name, $type, $options);
-                break;
-
-            case 'checkable':
-                $element = new CheckableElement($name, $type, $options);
-                break;
-
-            case 'model':
-                $element = new ModelElement($name, $type, $options);
-                break;
-        }
+        Event::fire('formBuilder.addElement.pre', compact('name', 'element', 'reference'));
 
         $this->elements[$name] = $element;
         
-        Event::fire('formBuilder.addElement.post', compact('name', 'element', 'type', 'options', 'reference'));
+        Event::fire('formBuilder.addElement.post', compact('name', 'element', 'reference'));
         
         return $element;
     }
@@ -156,7 +139,7 @@ class FormBuilder
      */
     public function text($name)
     {
-        return $this->addElement($name, 'input', 'text');
+		return $this->addElement(new InputElement($name, 'text', 'text'));
     }
 
     /**
@@ -165,7 +148,7 @@ class FormBuilder
      */
     public function textarea($name)
     {
-        return $this->addElement($name, 'input', 'textarea');
+        return $this->addElement(new InputElement($name, 'textarea', 'textarea'));
     }
 
     /**
@@ -174,7 +157,7 @@ class FormBuilder
      */
     public function integer($name)
     {
-        return $this->addElement($name, 'input', 'integer');
+        return $this->addElement(new InputElement($name, 'integer', 'integer'));
     }
 
     /**
@@ -183,7 +166,7 @@ class FormBuilder
      */
     public function percentage($name)
     {
-        return $this->addElement($name, 'input', 'percent');
+        return $this->addElement(new InputElement($name, 'percent', 'percentage'));
     }
 
     /**
@@ -192,10 +175,10 @@ class FormBuilder
      */
     public function select($name)
     {
-        return $this->addElement($name, 'checkable', 'choice', array(
+        return $this->addElement(new CheckableElement($name, 'choice', 'select', array(
                     'multiple' => false,
                     'expanded' => false,
-        ));
+        )));
     }
 
     /**
@@ -204,10 +187,10 @@ class FormBuilder
      */
     public function multiselect($name)
     {
-        return $this->addElement($name, 'checkable', 'choice', array(
-                    'multiple' => true,
-                    'expanded' => false,
-        ));
+        return $this->addElement(new CheckableElement($name, 'choice', 'multiselect', array(
+			'multiple' => true,
+			'expanded' => false,
+		)));
     }
 
     /**
@@ -216,10 +199,10 @@ class FormBuilder
      */
     public function radio($name)
     {
-        return $this->addElement($name, 'checkable', 'choice', array(
-                    'multiple' => false,
-                    'expanded' => true,
-        ));
+        return $this->addElement(new CheckableElement($name, 'choice', 'radio', array(
+			'multiple' => false,
+			'expanded' => false,
+		)));
     }
 
     /**
@@ -228,10 +211,10 @@ class FormBuilder
      */
     public function checkbox($name)
     {
-        return $this->addElement($name, 'checkable', 'choice', array(
-                    'multiple' => true,
-                    'expanded' => true,
-        ));
+        return $this->addElement(new CheckableElement($name, 'choice', 'checkbox', array(
+			'multiple' => true,
+			'expanded' => true,
+		)));
     }
 
     /**
@@ -240,7 +223,7 @@ class FormBuilder
      */
     public function submit($name)
     {
-        return $this->addElement($name, 'input', 'submit');
+        return $this->addElement(new InputElement($name, 'input', 'submit', 'submit'));
     }
 
     /**
@@ -249,7 +232,10 @@ class FormBuilder
      */
     public function modelSelect($name)
     {
-        return $this->addElement($name, 'model', 'choice');
+        return $this->addElement(new ModelElement($name, 'choice', 'modelSelect', array(
+			'multiple' => false,
+			'expanded' => false,
+		)));
     }
 
     /**
@@ -258,10 +244,10 @@ class FormBuilder
      */
     public function modelRadio($name)
     {
-        return $this->addElement($name, 'model', 'choice', array(
-                    'multiple' => true,
-                    'expanded' => true,
-        ));
+        return $this->addElement(new ModelElement($name, 'choice', 'modelRadio', array(
+			'multiple' => true,
+			'expanded' => true,
+		)));
     }
 
     /**
@@ -270,10 +256,10 @@ class FormBuilder
      */
     public function modelCheckbox($name)
     {
-        return $this->addElement($name, 'model', 'choice', array(
-                    'multiple' => true,
-                    'expanded' => false,
-        ));
+        return $this->addElement(new ModelElement($name, 'choice', 'modelCheckbox', array(
+			'multiple' => true,
+			'expanded' => false,
+		)));
     }
 
 }
