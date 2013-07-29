@@ -103,6 +103,53 @@ class FormBuilder
         return $element;
     }
 
+	/**
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$config = array();
+
+		foreach($this->elements as $element) {
+			$config[] = $element->toArray();
+		}
+
+		return $config;
+	}
+
+	/**
+	 * @param array $config
+	 * @return $this
+	 */
+	public function fromArray(Array $config)
+	{
+		foreach($config as $data) {
+
+			if(!isset($data['type'])) {
+				continue;
+			}
+
+			if(!isset($data['name'])) {
+				continue;
+			}
+
+			$type = $data['type'];
+			$name = $data['name'];
+
+			unset($data['type']);
+			unset($data['name']);
+
+			$element = $this->{$type}($name);
+
+			foreach($data as $key => $value) {
+				$element->{$key}($value);
+			}
+
+		}
+
+		return $this;
+	}
+
     /**
      * @param string $name
      * @return InputElement

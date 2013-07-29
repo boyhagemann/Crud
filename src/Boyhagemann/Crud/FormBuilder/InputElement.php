@@ -38,6 +38,15 @@ class InputElement
 		$this->options = $options;
 	}
 
+	public function toArray()
+	{
+		return array(
+			'name' => $this->name,
+			'type' => $this->type,
+			'rules' => $this->rules,
+		);
+	}
+
 	/**
 	 * @return string
 	 */

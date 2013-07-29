@@ -14,6 +14,23 @@ class ModelElement extends CheckableElement
     protected $field;
     protected $callback;
 
+	/**
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$model = $this->model;
+		if(is_object($model)) {
+			$model = get_class($model);
+		}
+
+		return parent::toArray() + array(
+			'model' => $model,
+			'key' => $this->key,
+			'field' => $this->field,
+		);
+	}
+
     /**
      * 
      * @param mixed $value

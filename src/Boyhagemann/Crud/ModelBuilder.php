@@ -132,6 +132,14 @@ class ModelBuilder
         }
     }
 
+	/**
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
+
     /**
      * @param string $name
      * @return $this
@@ -292,14 +300,14 @@ class ModelBuilder
      * Build the columns to the database
      */
     public function export()
-    {                
+    {
         // When there is no class name, no file has to be written to disk
         if(!$this->name) {
             return;
-        }    
-        
-        $this->getBlueprint()->build(DB::connection(), DB::connection()->getSchemaGrammar());    
-        
+        }
+
+        $this->getBlueprint()->build(DB::connection(), DB::connection()->getSchemaGrammar());
+
         $parts = explode('\\', $this->name);
         $filename = '../' . $this->modelPath;
         for ($i = 0; $i < count($parts); $i++) {
@@ -340,12 +348,12 @@ class ModelBuilder
         $class->addProperty('table', $this->table, PropertyGenerator::FLAG_PROTECTED);
 
         $class->addProperty('timestamps', $this->timestamps);
-        
+
         // Set the rules
         $class->addProperty('rules', $this->rules);
 
         $class->addProperty('guarded', array('id'), PropertyGenerator::FLAG_PROTECTED);
-        
+
         $fillable = array_keys($this->columns);
         $class->addProperty('fillable', $fillable, PropertyGenerator::FLAG_PROTECTED);
 
@@ -353,7 +361,7 @@ class ModelBuilder
         foreach ($this->relations as $alias => $relation) {
 
             $docblock = '@return \Illuminate\Database\Eloquent\Collection';
-            $body = sprintf('return $this->%s(\'%s\', \'%s\');', $relation->getType(), $relation->getName(), $relation->getTable());            
+            $body = sprintf('return $this->%s(\'%s\', \'%s\');', $relation->getType(), $relation->getName(), $relation->getTable());
             $class->addMethod($alias, array(), null, $body, $docblock);
         }
 
