@@ -102,6 +102,7 @@ class Controller
 
 		$parts[] = sprintf('%s(\'%s\')', $element->getType(), $element->getName());
 		unset($data['type']);
+		unset($data['name']);
 
 		foreach($data as $name => $value) {
 
