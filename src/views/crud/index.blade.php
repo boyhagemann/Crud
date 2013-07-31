@@ -12,9 +12,9 @@ Overview
 		@foreach($row->columns() as $column)
 		<td>{{ $column }}</td>
 		@endforeach
-		<td><a href="{{ URL::action($controller . '@edit', $id) }}">Edit</a></td>
+		<td><a href="{{ URL::route($route . '.edit', $id) }}">Edit</a></td>
 		<td>
-			{{ Form::open(array('action' => array($controller . '@destroy', $id), 'method' => 'DELETE')) }}
+			{{ Form::open(array('route' => array($route . '.destroy', $id), 'method' => 'DELETE')) }}
 			{{ Form::submit('Delete') }}
 			{{ Form::close() }}
 		</td>
@@ -24,5 +24,5 @@ Overview
 </table>
 
 <div>
-	<a href="{{ URL::action($controller . '@create') }}">Create</a>
+	<a href="{{ URL::route($route . '.create') }}">Create</a>
 </div>

@@ -93,18 +93,20 @@ abstract class CrudController extends BaseController
      */
     public function index()
     {
+		$this->getModelBuilder();
+
         $model = $this->modelBuilder->build();
         $form = $this->formBuilder->build();
         $overviewBuilder = $this->overviewBuilder;
-        $controller = get_called_class();
 
         $overviewBuilder->setForm($form);
         $overviewBuilder->setModel($model);
         $this->buildOverview($overviewBuilder);
 
         $overview = $overviewBuilder->build();
+		$route = $this->getBaseRoute();
 
-        return View::make('crud::crud/index', compact('overview', 'controller'));
+        return View::make('crud::crud/index', compact('overview', 'route'));
     }
 
     /**
@@ -114,12 +116,14 @@ abstract class CrudController extends BaseController
      */
     public function create()
     {
+		$this->getBaseRoute();
+
         $form = $this->getForm();
         $model = $this->getModel();
         $errors = Session::get('errors');
-        $controller = get_called_class();
+		$route = $this->getBaseRoute();
 
-        return View::make('crud::crud/create', compact('form', 'model', 'controller', 'errors'));
+        return View::make('crud::crud/create', compact('form', 'model', 'route', 'errors'));
     }
 
     /**
@@ -131,13 +135,13 @@ abstract class CrudController extends BaseController
     {
         $form = $this->getForm();
         $model = $this->getModel();
-        $controller = get_called_class();
+		$route = $this->getBaseRoute();
 
         $v = Validator::make(Input::all(), $model->rules);
 
         if ($v->fails()) {
             Input::flash();
-            return Redirect::action($controller . '@create')->withErrors($v->messages());
+            return Redirect::route($route . '.create')->withErrors($v->messages());
         }
 
         $this->prepare($model);
@@ -146,7 +150,7 @@ abstract class CrudController extends BaseController
 
         $this->saveRelations($model);
 
-        return Redirect::action($controller . '@index');
+        return Redirect::route($route . '.index');
     }
 
     /**
@@ -158,10 +162,10 @@ abstract class CrudController extends BaseController
     {
         $model = $this->getModelWithRelations()->findOrFail($id);
         $form = $this->getForm($model->toArray());
-        $controller = get_called_class();
+		$route = $this->getBaseRoute();
         $errors = Session::get('errors');
 
-        return View::make('crud::crud/edit', compact('form', 'model', 'controller', 'errors'));
+        return View::make('crud::crud/edit', compact('form', 'model', 'route', 'errors'));
     }
 
     /**
@@ -173,13 +177,13 @@ abstract class CrudController extends BaseController
     {
         $form = $this->getForm();
         $model = $this->getModel()->findOrFail($id);
-        $controller = get_called_class();
+		$route = $this->getBaseRoute();
 
         $v = Validator::make(Input::all(), $model->rules);
 
         if ($v->fails()) {
             Input::flash();
-            return Redirect::action($controller . '@edit', array($model->id))->withErrors($v->messages());
+            return Redirect::route($route . '.edit', array($model->id))->withErrors($v->messages());
         }
 
         $this->prepare($model);
@@ -188,7 +192,7 @@ abstract class CrudController extends BaseController
 
         $this->saveRelations($model);
 
-        return Redirect::action($controller . '@index');
+        return Redirect::route($route . '.index');
     }
 
     /**
@@ -200,11 +204,11 @@ abstract class CrudController extends BaseController
     {
         $form = $this->getForm();
         $model = $this->getModel()->findOrFail($id);
-        $controller = get_called_class();
+		$route = $this->getBaseRoute();
 
         $model->delete();
 
-        return Redirect::action($controller . '@index');
+        return Redirect::route($route . '.index');
     }
 
     /**
@@ -271,5 +275,20 @@ abstract class CrudController extends BaseController
             }
         }
     }
+
+	/**
+	 * @return string
+	 */
+	public function getBaseRoute()
+	{
+		$resourceDefaults = array('index', 'create', 'store', 'show', 'edit', 'update', 'destroy');
+		$routeName = \Route::currentRouteName();
+
+		foreach($resourceDefaults as $default) {
+			$routeName = str_replace('.' . $default, '', $routeName);
+		}
+
+		return $routeName;
+	}
 
 }

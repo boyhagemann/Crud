@@ -1,11 +1,11 @@
 Edit
 
-{{ Form::model($model, array('action' => array($controller . '@update', $model->id), 'method' => 'PUT')) }}
+{{ Form::model($model, array('route' => array($route . '.update', $model->id), 'method' => 'PUT')) }}
 {{ Form::renderFields($form, $errors) }}
 
 {{ Form::submit('Save') }}
 {{ Form::close() }}
 
 <div>
-    <a href="{{ URL::action($controller . '@index') }}">To overview</a>
+    <a href="{{ URL::route($route . '.index') }}">To overview</a>
 </div>
