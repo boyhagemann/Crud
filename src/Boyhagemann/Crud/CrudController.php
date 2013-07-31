@@ -284,6 +284,10 @@ abstract class CrudController extends BaseController
 		$resourceDefaults = array('index', 'create', 'store', 'show', 'edit', 'update', 'destroy');
 		$routeName = \Route::currentRouteName();
 
+		if(strpos('', $routeName)) {
+			throw new \Exception('Route must be a resource');
+		}
+
 		foreach($resourceDefaults as $default) {
 			$routeName = str_replace('.' . $default, '', $routeName);
 		}
