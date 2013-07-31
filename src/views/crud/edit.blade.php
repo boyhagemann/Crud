@@ -1,4 +1,4 @@
-Edit
+<h2>Edit</h2>
 
 {{ Form::model($model, array('route' => array($route . '.update', $model->id), 'method' => 'PUT')) }}
 {{ Form::renderFields($form, $errors) }}

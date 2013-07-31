@@ -143,6 +143,7 @@ class OverviewBuilder
 
 		if($type instanceof ChoiceType) {
 			$choices = $form->createView()->vars['choices'];
+			$selected = array();
 			foreach($choices as $choice) {
 
 				if(in_array($choice->value, (array) $value)) {

@@ -1,4 +1,4 @@
-Overview
+<h2>Overview</h2>
 
 <table>
 	<thead>
