@@ -10,8 +10,10 @@
     "require": {
         "php": ">=5.3.0",
         "illuminate/support": "4.0.x",
-		"hostnet/form-twig-bridge": "dev-master",
-		"zendframework/zend-code": "dev-master"
+        "zendframework/zend-code": "dev-master",
+        "boyhagemann/form": "dev-master",
+        "boyhagemann/model": "dev-master",
+        "boyhagemann/overview": "dev-master"
     },
     "autoload": {
         "psr-0": {

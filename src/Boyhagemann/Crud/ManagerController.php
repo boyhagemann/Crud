@@ -1,29 +1,34 @@
 <?php
 
-namespace Boyhagemann\Crud\Manager;
-
+namespace Boyhagemann\Crud;
+use Boyhagemann\Form\FormBuilder;
 use View;
 
 class ManagerController extends \BaseController
 {
     protected $scanner;
-    
-    public function __construct(Scanner $scanner)
+    protected $generator;
+    protected $formBuilder;
+
+    public function __construct(Scanner $scanner, ControllerGenerator $generator, FormBuilder $formBuilder)
     {
         $this->scanner = $scanner;
+        $this->generator = $generator;
+        $this->formBuilder = $formBuilder;
     }
     
-    public function managed()
+    public function index()
     {
-        $controllers = $this->scanner->scanForControllers();
-        var_dump($controllers);
-    }
-    
-    public function unmanaged()
-    {
-        $controllers = $this->scanner->scanForControllers();
+        $controllers = $this->scanner->scanForControllers(array('../app/controllers'));
         
-        return View::make('crud::manager/unmanaged', compact('controllers'));
+        return View::make('crud::manager/index', compact('controllers'));
+    }
+    
+    public function scan()
+    {
+        $controllers = $this->scanner->scanForControllers(array('../workbench', '../vendor'));
+        
+        return View::make('crud::manager/scan', compact('controllers'));
     }
     
     public function manage($class)
@@ -31,7 +36,7 @@ class ManagerController extends \BaseController
         $controller = $this->getController($class);        
         $model =  $controller->getModelBuilder()->getName();
         
-        $fb = \App::make('Boyhagemann\Crud\FormBuilder');
+        $fb = $this->formBuilder;
         $fb->action(\URL::action(get_called_class() . '@createController'));
         $fb->text('original')->label('Original controller')->value(get_class($controller));
         $fb->text('controller')->label('Controller name')->value($model . 'Controller');
@@ -41,18 +46,24 @@ class ManagerController extends \BaseController
         return View::make('crud::manager/manage', compact('form'));
     }
     
-    public function createController()
+    public function create()
     {
         $controller = \App::make(\Input::get('original'));        
         
-        $generator = \App::make('Boyhagemann\Crud\Generator\Controller');
-        $generator->setController($controller);
+        $this->generator->setController($controller);
         
         $filename = \Input::get('path') . '/' . \Input::get('controller') . '.php';
         
-        file_put_contents($filename, $generator->generate());        
+        file_put_contents($filename, $this->generator->generate());  
+        
+        return Redirect::route('crud');
     }
     
+    /**
+     * 
+     * @param string $key
+     * @return CrudController
+     */
     protected function getController($key)
     {
         $class = str_replace('/', '\\', $key);

@@ -1,16 +1,22 @@
 <?php
 
-namespace Boyhagemann\Crud\Manager;
+namespace Boyhagemann\Crud;
 
 use Zend\Code\Reflection\FileReflection;
+use File;
 
 class Scanner
 {
-    public function scanForControllers()
+    /**
+     * 
+     * @param array $directories
+     * @return array
+     */
+    public function scanForControllers(Array $directories)
     {
         $subclass = 'Boyhagemann\Crud\CrudController';
         $controllers = array();
-        $files = $this->globFolders('*Controller.php', array('../app/controllers', '../workbench'));
+        $files = $this->globFolders('*Controller.php', $directories);
         
         foreach($files as $filename) {
             
@@ -27,18 +33,13 @@ class Scanner
         return $controllers;
     }
     
-    public function scanForJson()
-    {        
-        return $scanned;
-    }
-    
     /**
      * 
      * @param type $pattern
      * @param array $folders
      * @return array
      */
-    public function globFolders($pattern, Array $folders)
+    protected function globFolders($pattern, Array $folders)
     {
         $files = array();
         foreach($folders as $folder) {
@@ -55,9 +56,9 @@ class Scanner
      */
     protected function glob($pattern, $folder)
     {        
-        $files = \File::glob($folder . '/' . $pattern, GLOB_BRACE);
+        $files = File::glob($folder . '/' . $pattern, GLOB_BRACE);
                 
-        foreach(\File::directories($folder) as $sub) {
+        foreach(File::directories($folder) as $sub) {
             $files = array_merge($this->glob($pattern, $sub), $files);
         }
         

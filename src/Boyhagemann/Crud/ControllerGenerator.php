@@ -1,19 +1,15 @@
 <?php
 
-namespace Boyhagemann\Crud\Generator;
+namespace Boyhagemann\Crud;
 
 use Zend\Code\Generator\FileGenerator;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 use Zend\Code\Generator\ParameterGenerator;
+use Boyhagemann\Form\Element\InputElement;
 
-use Boyhagemann\Crud\CrudController;
-
-use Boyhagemann\Crud\FormBuilder;
-use Boyhagemann\Crud\ModelBuilder;
-
-class Controller
+class ControllerGenerator
 {
 	/**
 	 * @var FileGenerator
@@ -66,9 +62,9 @@ class Controller
 		$this->generator->setClass($class);
                 $this->generator->setUses(array(
                     'Boyhagemann\Crud\CrudController',
-                    'Boyhagemann\Crud\FormBuilder',
-                    'Boyhagemann\Crud\ModelBuilder',
-                    'Boyhagemann\Crud\OverviewBuilder',
+                    'Boyhagemann\Form\FormBuilder',
+                    'Boyhagemann\Model\ModelBuilder',
+                    'Boyhagemann\Overview\OverviewBuilder',
                 ));
 
 		return $this->generator->generate();
@@ -92,10 +88,10 @@ class Controller
                 
         
 	/**
-	 * @param FormBuilder\InputElement $element
+	 * @param InputElement $element
 	 * @return string
 	 */
-	protected function generateFormBuilderChain(FormBuilder\InputElement $element)
+	protected function generateFormBuilderChain(InputElement $element)
 	{
 		$parts = array();
 		$data = $element->toArray();

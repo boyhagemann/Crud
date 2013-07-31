@@ -4,6 +4,9 @@ namespace Boyhagemann\Crud;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
+use Boyhagemann\Form\FormBuilder;
+use Boyhagemann\Model\ModelBuilder;
+use Boyhagemann\Overview\OverviewBuilder;
 use View,
     BaseController,
     Validator,
@@ -27,6 +30,10 @@ abstract class CrudController extends BaseController
      * @var ModelBuilder
      */
     protected $modelBuilder;
+    
+    protected $viewIndex    = 'crud::crud.index';
+    protected $viewCreate   = 'crud::crud.create';
+    protected $viewEdit     = 'crud::crud.edit';
 
     /**
      * @param FormBuilder     $formBuilder
@@ -42,8 +49,15 @@ abstract class CrudController extends BaseController
         $this->buildModel($modelBuilder);
         $this->buildForm($formBuilder);
 
-        $formBuilder->build();
-        $modelBuilder->export();
+        
+        $model  = $modelBuilder->build();
+        $form   = $formBuilder->build();
+        
+        $overviewBuilder->setForm($form);
+        $overviewBuilder->setModel($model);
+        $this->buildOverview($overviewBuilder);
+        
+//        $modelBuilder->export();
     }
 
     /**
@@ -60,7 +74,7 @@ abstract class CrudController extends BaseController
      * @param OverviewBuilder $overviewBuilder
      */
     abstract public function buildModel(ModelBuilder $modelBuilder);
-    
+
     /**
      * 
      * @return ModelBuilder
@@ -69,7 +83,7 @@ abstract class CrudController extends BaseController
     {
         return $this->modelBuilder;
     }
-    
+
     /**
      * 
      * @return FormBuilder
@@ -78,7 +92,7 @@ abstract class CrudController extends BaseController
     {
         return $this->formBuilder;
     }
-    
+
     /**
      * 
      * @return OverviewBuilder
@@ -86,27 +100,20 @@ abstract class CrudController extends BaseController
     public function getOverviewBuilder()
     {
         return $this->overviewBuilder;
-    }    
+    }
 
     /**
      * @return mixed
      */
     public function index()
     {
-		$this->getModelBuilder();
+//        $this->getModelBuilder();
 
-        $model = $this->modelBuilder->build();
-        $form = $this->formBuilder->build();
-        $overviewBuilder = $this->overviewBuilder;
 
-        $overviewBuilder->setForm($form);
-        $overviewBuilder->setModel($model);
-        $this->buildOverview($overviewBuilder);
+        $overview = $this->getOverview();
+        $route = $this->getBaseRoute();
 
-        $overview = $overviewBuilder->build();
-		$route = $this->getBaseRoute();
-
-        return View::make('crud::crud/index', compact('overview', 'route'));
+        return View::make($this->viewIndex, compact('overview', 'route'));
     }
 
     /**
@@ -116,14 +123,14 @@ abstract class CrudController extends BaseController
      */
     public function create()
     {
-		$this->getBaseRoute();
+        $this->getBaseRoute();
 
         $form = $this->getForm();
         $model = $this->getModel();
         $errors = Session::get('errors');
-		$route = $this->getBaseRoute();
+        $route = $this->getBaseRoute();
 
-        return View::make('crud::crud/create', compact('form', 'model', 'route', 'errors'));
+        return View::make($this->viewCreate, compact('form', 'model', 'route', 'errors'));
     }
 
     /**
@@ -135,7 +142,7 @@ abstract class CrudController extends BaseController
     {
         $form = $this->getForm();
         $model = $this->getModel();
-		$route = $this->getBaseRoute();
+        $route = $this->getBaseRoute();
 
         $v = Validator::make(Input::all(), $model->rules);
 
@@ -162,10 +169,10 @@ abstract class CrudController extends BaseController
     {
         $model = $this->getModelWithRelations()->findOrFail($id);
         $form = $this->getForm($model->toArray());
-		$route = $this->getBaseRoute();
+        $route = $this->getBaseRoute();
         $errors = Session::get('errors');
 
-        return View::make('crud::crud/edit', compact('form', 'model', 'route', 'errors'));
+        return View::make($this->viewEdit, compact('form', 'model', 'route', 'errors'));
     }
 
     /**
@@ -177,7 +184,7 @@ abstract class CrudController extends BaseController
     {
         $form = $this->getForm();
         $model = $this->getModel()->findOrFail($id);
-		$route = $this->getBaseRoute();
+        $route = $this->getBaseRoute();
 
         $v = Validator::make(Input::all(), $model->rules);
 
@@ -204,7 +211,7 @@ abstract class CrudController extends BaseController
     {
         $form = $this->getForm();
         $model = $this->getModel()->findOrFail($id);
-		$route = $this->getBaseRoute();
+        $route = $this->getBaseRoute();
 
         $model->delete();
 
@@ -217,6 +224,14 @@ abstract class CrudController extends BaseController
     public function getModel()
     {
         return $this->modelBuilder->build();
+    }
+
+    /**
+     * @return Model
+     */
+    public function getOverview()
+    {
+        return $this->overviewBuilder->build();
     }
 
     /**
@@ -276,23 +291,23 @@ abstract class CrudController extends BaseController
         }
     }
 
-	/**
-	 * @return string
-	 */
-	public function getBaseRoute()
-	{
-		$resourceDefaults = array('index', 'create', 'store', 'show', 'edit', 'update', 'destroy');
-		$routeName = \Route::currentRouteName();
+    /**
+     * @return string
+     */
+    public function getBaseRoute()
+    {
+        $resourceDefaults = array('index', 'create', 'store', 'show', 'edit', 'update', 'destroy');
+        $routeName = \Route::currentRouteName();
 
-		if(strpos('', $routeName)) {
-			throw new \Exception('Route must be a resource');
-		}
+        if (strpos('', $routeName)) {
+            throw new \Exception('Route must be a resource');
+        }
 
-		foreach($resourceDefaults as $default) {
-			$routeName = str_replace('.' . $default, '', $routeName);
-		}
+        foreach ($resourceDefaults as $default) {
+            $routeName = str_replace('.' . $default, '', $routeName);
+        }
 
-		return $routeName;
-	}
+        return $routeName;
+    }
 
 }
