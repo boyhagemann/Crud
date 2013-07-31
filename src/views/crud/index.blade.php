@@ -23,6 +23,8 @@ Overview
 	</tbody>
 </table>
 
+<div class="paginate">{{ $overview->links() }}</div>
+
 <div>
 	<a href="{{ URL::route($route . '.create') }}">Create</a>
 </div>

@@ -12,6 +12,8 @@ class OverviewBuilder
 
 	protected $fields = array();
 
+	protected $limit = 5;
+
 	/**
 	 * @var QueryBuilder
 	 */
@@ -65,7 +67,7 @@ class OverviewBuilder
 	 */
 	public function display($limit)
 	{
-		$this->getQueryBuilder()->take($limit);
+		$this->limit = $limit;
 		return $this;
 	}
 
@@ -111,7 +113,11 @@ class OverviewBuilder
 			$overview->label($field, $label);
 		}
 
-		foreach($this->getQueryBuilder()->get() as $record) {
+		$q = $this->getQueryBuilder();
+		$collection = $q->paginate($this->limit);
+		$overview->setCollection($collection);
+
+		foreach($collection as $record) {
 
 			$columns = array();
 			foreach($this->fields as $field) {

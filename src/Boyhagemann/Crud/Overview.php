@@ -6,6 +6,27 @@ class Overview
 {
 	protected $labels = array();
 	protected $rows = array();
+	protected $collection;
+
+	/**
+	 * @param mixed $collection
+	 */
+	public function setCollection($collection) {
+		$this->collection = $collection;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getCollection() {
+		return $this->collection;
+	}
+
+
+	public function links()
+	{
+		return $this->getCollection()->links();
+	}
 
 	public function row($id, $columns)
 	{
