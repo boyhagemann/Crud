@@ -27,8 +27,6 @@ class CrudServiceProvider extends ServiceProvider
         $this->app->register('Boyhagemann\Form\FormServiceProvider');
         $this->app->register('Boyhagemann\Model\ModelServiceProvider');
         $this->app->register('Boyhagemann\Overview\OverviewServiceProvider');
-        
-        $this->app->alias('DeSmart\Layout\Facades\Layout', 'Layout');
     }
 
     public function boot()

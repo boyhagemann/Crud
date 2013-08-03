@@ -49,6 +49,8 @@ abstract class CrudController extends BaseController
         $this->buildModel($modelBuilder);
         $this->buildForm($formBuilder);
         
+        $modelBuilder->setFormBuilder($formBuilder);
+        
         $model  = $modelBuilder->build();
         $form   = $formBuilder->build();
         
@@ -104,9 +106,6 @@ abstract class CrudController extends BaseController
      */
     public function index()
     {
-//        $this->getModelBuilder();
-
-
         $overview = $this->getOverview();
         $route = $this->getBaseRoute();
 
