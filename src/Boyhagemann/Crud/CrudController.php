@@ -41,14 +41,13 @@ abstract class CrudController extends BaseController
      * @param ModelBuilder 	  $modelBuilder
      */
     public function __construct(FormBuilder $formBuilder, OverviewBuilder $overviewBuilder, ModelBuilder $modelBuilder)
-    {
+    {        
         $this->formBuilder = $formBuilder;
         $this->modelBuilder = $modelBuilder;
         $this->overviewBuilder = $overviewBuilder;
 
         $this->buildModel($modelBuilder);
         $this->buildForm($formBuilder);
-
         
         $model  = $modelBuilder->build();
         $form   = $formBuilder->build();
@@ -56,8 +55,6 @@ abstract class CrudController extends BaseController
         $overviewBuilder->setForm($form);
         $overviewBuilder->setModel($model);
         $this->buildOverview($overviewBuilder);
-        
-//        $modelBuilder->export();
     }
 
     /**
