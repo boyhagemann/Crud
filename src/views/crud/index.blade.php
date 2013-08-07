@@ -1,4 +1,13 @@
-<h2>Overview</h2>
+<div class="page-header">
+	<h1>
+		@if($title)
+		{{{ $title }}} <small>Overview</small>
+		@else
+		Overview
+		@endif
+		<small class="pull-right"><a href="{{ URL::route($route . '.create') }}" class="btn-primary btn">Create</a></small>
+	</h1>
+</div>
 
 <table class="table table-striped">
 	<tr>
@@ -17,8 +26,8 @@
 		@endforeach
 		<td class="col-2">
 			{{ Form::open(array('route' => array($route . '.destroy', $id), 'method' => 'DELETE')) }}
-			<a href="{{ URL::route($route . '.edit', $id) }}" class="btn btn-small btn-primary">Edit</a>
-			{{ Form::submit('Delete', array('class' => 'btn btn-small')) }}
+			<a href="{{ URL::route($route . '.edit', $id) }}" class="btn btn-xs btn-default">Edit</a>
+			{{ Form::submit('Delete', array('class' => 'btn btn-xs btn-link')) }}
 			{{ Form::close() }}
 		</td>
 	</tr>
@@ -27,7 +36,3 @@
 </table>
 
 {{ $overview->links() }}
-
-<div>
-	<a href="{{ URL::route($route . '.create') }}">Create</a>
-</div>

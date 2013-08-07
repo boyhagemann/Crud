@@ -35,6 +35,8 @@ abstract class CrudController extends BaseController
     protected $viewCreate   = 'crud::crud.create';
     protected $viewEdit     = 'crud::crud.edit';
 
+	protected $title;
+
     /**
      * @param FormBuilder     $formBuilder
      * @param OverviewBuilder $overviewBuilder
@@ -108,8 +110,9 @@ abstract class CrudController extends BaseController
     {
         $overview = $this->getOverview();
         $route = $this->getBaseRoute();
+		$title = $this->title;
 
-        return View::make($this->viewIndex, compact('overview', 'route'));
+        return View::make($this->viewIndex, compact('title', 'overview', 'route'));
     }
 
     /**
@@ -125,8 +128,9 @@ abstract class CrudController extends BaseController
         $model = $this->getModel();
         $errors = Session::get('errors');
         $route = $this->getBaseRoute();
+		$title = $this->title;
 
-        return View::make($this->viewCreate, compact('form', 'model', 'route', 'errors'));
+        return View::make($this->viewCreate, compact('title', 'form', 'model', 'route', 'errors'));
     }
 
     /**
@@ -167,8 +171,9 @@ abstract class CrudController extends BaseController
         $form = $this->getForm($model->toArray());
         $route = $this->getBaseRoute();
         $errors = Session::get('errors');
+		$title = $this->title;
 
-        return View::make($this->viewEdit, compact('form', 'model', 'route', 'errors'));
+        return View::make($this->viewEdit, compact('title', 'form', 'model', 'route', 'errors'));
     }
 
     /**
