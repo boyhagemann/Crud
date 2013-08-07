@@ -15,7 +15,7 @@
 		<td><a href="{{ URL::route($route . '.edit', $id) }}">Edit</a></td>
 		<td>
 			{{ Form::open(array('route' => array($route . '.destroy', $id), 'method' => 'DELETE')) }}
-			{{ Form::submit('Delete') }}
+			{{ Form::submit('Delete', array('class' => 'btn btn-link')) }}
 			{{ Form::close() }}
 		</td>
 	</tr>
