@@ -5,7 +5,7 @@
 		@else
 			<a href="{{ URL::route($route . '.index') }}">Create</a>
 		@endif
-		<small class="pull-right"><a href="{{ URL::route($route . '.create') }}" class="btn-primary btn">Create</a></small>
+		<small class="pull-right"><a href="{{ URL::route($route . '.index') }}" class="btn-primary btn">Overview</a></small>
 	</h1>
 </div>
 

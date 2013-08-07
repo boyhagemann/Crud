@@ -12,7 +12,8 @@ use View,
     Validator,
     Input,
     Redirect,
-    Session;
+    Session,
+	Config;
 
 abstract class CrudController extends BaseController
 {
@@ -30,12 +31,6 @@ abstract class CrudController extends BaseController
      * @var ModelBuilder
      */
     protected $modelBuilder;
-    
-    protected $viewIndex    = 'crud::crud.index';
-    protected $viewCreate   = 'crud::crud.create';
-    protected $viewEdit     = 'crud::crud.edit';
-
-	protected $title;
 
     /**
      * @param FormBuilder     $formBuilder
@@ -59,6 +54,22 @@ abstract class CrudController extends BaseController
         $overviewBuilder->setForm($form);
         $overviewBuilder->setModel($model);
         $this->buildOverview($overviewBuilder);
+
+		Config::set('crud::config', array_merge_recursive($this->config(), Config::get('crud::config'), array(
+			'baseroute' => $this->getBaseRoute(),
+			'redirects' => array(
+				'success' => array(
+					'store' => $this->getBaseRoute() . '.index',
+					'update' => $this->getBaseRoute() . '.index',
+					'destroy' => $this->getBaseRoute() . '.index',
+				),
+				'error' => array(
+					'store' => $this->getBaseRoute() . '.create',
+					'update' => $this->getBaseRoute() . '.update',
+					'destroy' => $this->getBaseRoute() . '.index',
+				)
+			)
+		)));
     }
 
     /**
@@ -103,6 +114,14 @@ abstract class CrudController extends BaseController
         return $this->overviewBuilder;
     }
 
+	/**
+	 * @return array
+	 */
+	public function config()
+	{
+		return array();
+	}
+
     /**
      * @return mixed
      */
@@ -110,9 +129,10 @@ abstract class CrudController extends BaseController
     {
         $overview = $this->getOverview();
         $route = $this->getBaseRoute();
-		$title = $this->title;
+		$title = Config::get('crud::config.title');
+		$view = Config::get('crud::config.view.index');
 
-        return View::make($this->viewIndex, compact('title', 'overview', 'route'));
+        return View::make($view, compact('title', 'overview', 'route'));
     }
 
     /**
@@ -128,9 +148,10 @@ abstract class CrudController extends BaseController
         $model = $this->getModel();
         $errors = Session::get('errors');
         $route = $this->getBaseRoute();
-		$title = $this->title;
+		$title = Config::get('crud::config.title');
+		$view = Config::get('crud::config.view.create');
 
-        return View::make($this->viewCreate, compact('title', 'form', 'model', 'route', 'errors'));
+        return View::make($view, compact('title', 'form', 'model', 'route', 'errors'));
     }
 
     /**
@@ -143,12 +164,14 @@ abstract class CrudController extends BaseController
         $form = $this->getForm();
         $model = $this->getModel();
         $route = $this->getBaseRoute();
+		$success = Config::get('crud::redirects.success.store');
+		$error = Config::get('crud::redirects.error.store');
 
         $v = Validator::make(Input::all(), $model->rules);
 
         if ($v->fails()) {
             Input::flash();
-            return Redirect::route($route . '.create')->withErrors($v->messages());
+            return Redirect::route($error)->withErrors($v->messages());
         }
 
         $this->prepare($model);
@@ -157,7 +180,7 @@ abstract class CrudController extends BaseController
 
         $this->saveRelations($model);
 
-        return Redirect::route($route . '.index');
+        return Redirect::route($success);
     }
 
     /**
@@ -167,13 +190,15 @@ abstract class CrudController extends BaseController
      */
     public function edit($id)
     {
+		$config = Config::get('crud::config');
         $model = $this->getModelWithRelations()->findOrFail($id);
         $form = $this->getForm($model->toArray());
         $route = $this->getBaseRoute();
         $errors = Session::get('errors');
-		$title = $this->title;
+		$title = Config::get('crud::config.title');
+		$view = Config::get('crud::config.view.edit');
 
-        return View::make($this->viewEdit, compact('title', 'form', 'model', 'route', 'errors'));
+        return View::make($view, compact('title', 'form', 'model', 'route', 'errors'));
     }
 
     /**
@@ -186,12 +211,14 @@ abstract class CrudController extends BaseController
         $form = $this->getForm();
         $model = $this->getModel()->findOrFail($id);
         $route = $this->getBaseRoute();
+		$success = Config::get('crud::redirects.success.update');
+		$error = Config::get('crud::redirects.error.update');
 
         $v = Validator::make(Input::all(), $model->rules);
 
         if ($v->fails()) {
             Input::flash();
-            return Redirect::route($route . '.edit', array($model->id))->withErrors($v->messages());
+            return Redirect::route($error, array($model->id))->withErrors($v->messages());
         }
 
         $this->prepare($model);
@@ -200,7 +227,7 @@ abstract class CrudController extends BaseController
 
         $this->saveRelations($model);
 
-        return Redirect::route($route . '.index');
+        return Redirect::route($success);
     }
 
     /**
@@ -213,10 +240,11 @@ abstract class CrudController extends BaseController
         $form = $this->getForm();
         $model = $this->getModel()->findOrFail($id);
         $route = $this->getBaseRoute();
+		$success = Config::get('crud::redirects.success.update');
 
         $model->delete();
 
-        return Redirect::route($route . '.index');
+        return Redirect::route($success);
     }
 
     /**
@@ -297,6 +325,10 @@ abstract class CrudController extends BaseController
      */
     public function getBaseRoute()
     {
+		if(Config::has('crud::config.baseroute')) {
+			return Config::get('crud::config.baseroute');
+		}
+
         $resourceDefaults = array('index', 'create', 'store', 'show', 'edit', 'update', 'destroy');
         $routeName = \Route::currentRouteName();
 
