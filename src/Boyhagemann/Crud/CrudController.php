@@ -56,19 +56,19 @@ abstract class CrudController extends BaseController
         $this->buildOverview($overviewBuilder);
 
 		Config::set('crud::config', array_merge_recursive($this->config(), Config::get('crud::config'), array(
-			'baseroute' => $this->getBaseRoute(),
-			'redirects' => array(
-				'success' => array(
-					'store' => $this->getBaseRoute() . '.index',
-					'update' => $this->getBaseRoute() . '.index',
-					'destroy' => $this->getBaseRoute() . '.index',
-				),
-				'error' => array(
-					'store' => $this->getBaseRoute() . '.create',
-					'update' => $this->getBaseRoute() . '.update',
-					'destroy' => $this->getBaseRoute() . '.index',
-				)
-			)
+//			'baseroute' => $this->getBaseRoute(),
+//			'redirects' => array(
+//				'success' => array(
+//					'store' => $this->getBaseRoute() . '.index',
+//					'update' => $this->getBaseRoute() . '.index',
+//					'destroy' => $this->getBaseRoute() . '.index',
+//				),
+//				'error' => array(
+//					'store' => $this->getBaseRoute() . '.create',
+//					'update' => $this->getBaseRoute() . '.update',
+//					'destroy' => $this->getBaseRoute() . '.index',
+//				)
+//			)
 		)));
     }
 
