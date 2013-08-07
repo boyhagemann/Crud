@@ -1,21 +1,24 @@
 <h2>Overview</h2>
 
-<table>
-	<thead>
-	@foreach($overview->labels() as $label)
-	<td>{{ $label }}</td>
-	@endforeach
-	</thead>
+<table class="table table-striped">
+	<tr>
+		<thead>
+		@foreach($overview->labels() as $label)
+		<th>{{ $label }}</th>
+		@endforeach
+		<th></th>
+		</thead>
+	</tr>
 	<tbody>
 	@foreach($overview->rows() as $id => $row)
 	<tr>
 		@foreach($row->columns() as $column)
 		<td>{{ $column }}</td>
 		@endforeach
-		<td><a href="{{ URL::route($route . '.edit', $id) }}">Edit</a></td>
-		<td>
+		<td class="col-2">
 			{{ Form::open(array('route' => array($route . '.destroy', $id), 'method' => 'DELETE')) }}
-			{{ Form::submit('Delete', array('class' => 'btn btn-link')) }}
+			<a href="{{ URL::route($route . '.edit', $id) }}" class="btn btn-small btn-primary">Edit</a>
+			{{ Form::submit('Delete', array('class' => 'btn btn-small')) }}
 			{{ Form::close() }}
 		</td>
 	</tr>
@@ -23,7 +26,7 @@
 	</tbody>
 </table>
 
-<div class="paginate">{{ $overview->links() }}</div>
+{{ $overview->links() }}
 
 <div>
 	<a href="{{ URL::route($route . '.create') }}">Create</a>
