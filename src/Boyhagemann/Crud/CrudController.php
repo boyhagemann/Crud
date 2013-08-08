@@ -38,7 +38,9 @@ abstract class CrudController extends BaseController
      * @param ModelBuilder 	  $modelBuilder
      */
     public function __construct(FormBuilder $formBuilder, OverviewBuilder $overviewBuilder, ModelBuilder $modelBuilder)
-    {        
+    {
+		$formBuilder->setName(get_called_class());
+
         $this->formBuilder = $formBuilder;
         $this->modelBuilder = $modelBuilder;
         $this->overviewBuilder = $overviewBuilder;
@@ -55,20 +57,20 @@ abstract class CrudController extends BaseController
         $overviewBuilder->setModel($model);
         $this->buildOverview($overviewBuilder);
 
-		Config::set('crud::config', array_merge_recursive($this->config(), Config::get('crud::config'), array(
-//			'baseroute' => $this->getBaseRoute(),
-//			'redirects' => array(
-//				'success' => array(
-//					'store' => $this->getBaseRoute() . '.index',
-//					'update' => $this->getBaseRoute() . '.index',
-//					'destroy' => $this->getBaseRoute() . '.index',
-//				),
-//				'error' => array(
-//					'store' => $this->getBaseRoute() . '.create',
-//					'update' => $this->getBaseRoute() . '.update',
-//					'destroy' => $this->getBaseRoute() . '.index',
-//				)
-//			)
+		Config::set('crud::config', array_merge_recursive($this->config(), array(
+			'baseroute' => $this->getBaseRoute(),
+			'redirects' => array(
+				'success' => array(
+					'store' => $this->getBaseRoute() . '.index',
+					'update' => $this->getBaseRoute() . '.index',
+					'destroy' => $this->getBaseRoute() . '.index',
+				),
+				'error' => array(
+					'store' => $this->getBaseRoute() . '.create',
+					'update' => $this->getBaseRoute() . '.update',
+					'destroy' => $this->getBaseRoute() . '.index',
+				)
+			)
 		)));
     }
 
@@ -164,8 +166,8 @@ abstract class CrudController extends BaseController
         $form = $this->getForm();
         $model = $this->getModel();
         $route = $this->getBaseRoute();
-		$success = Config::get('crud::redirects.success.store');
-		$error = Config::get('crud::redirects.error.store');
+		$success = Config::get('crud::config.redirects.success.store');
+		$error = Config::get('crud::config.redirects.error.store');
 
         $v = Validator::make(Input::all(), $model->rules);
 
