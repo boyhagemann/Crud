@@ -57,29 +57,7 @@ abstract class CrudController extends BaseController
         $overviewBuilder->setModel($model);
         $this->buildOverview($overviewBuilder);
 
-		/**
-		 * @todo fix merging config
-		 */
-		Config::set('crud::config', array_merge($this->config(), array(
-			'baseroute' => $this->getBaseRoute(),
-			'view' => array(
-				'index' => 'crud::crud.index',
-				'create' => 'crud::crud.create',
-				'edit' => 'crud::crud.edit',
-			),
-			'redirects' => array(
-				'success' => array(
-					'store' => $this->getBaseRoute() . '.index',
-					'update' => $this->getBaseRoute() . '.index',
-					'destroy' => $this->getBaseRoute() . '.index',
-				),
-				'error' => array(
-					'store' => $this->getBaseRoute() . '.create',
-					'update' => $this->getBaseRoute() . '.update',
-					'destroy' => $this->getBaseRoute() . '.index',
-				)
-			)
-		)));
+		Config::set('crud::config', array_replace_recursive(Config::get('crud::config'), $this->config()));
     }
 
     /**
