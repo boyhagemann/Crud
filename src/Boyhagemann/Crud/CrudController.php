@@ -330,10 +330,16 @@ abstract class CrudController extends BaseController
     }
 
     /**
+	 * Get the base route where the crud controller is working from. This is needed for
+	 * redirecting after saving the model.
+	 *
+	 * The routes can be changed thru a config file or thru the config() method.
+	 *
      * @return string
      */
     public function getBaseRoute()
     {
+		// If there is a base route, simply return it
 		if(Config::has('crud::config.baseroute')) {
 			return Config::get('crud::config.baseroute');
 		}
@@ -341,14 +347,19 @@ abstract class CrudController extends BaseController
         $resourceDefaults = array('index', 'create', 'store', 'show', 'edit', 'update', 'destroy');
         $routeName = \Route::currentRouteName();
 
-        if (strpos('', $routeName)) {
+		// Just to be safe here, make sure the route is a resource. A resource has dots in
+		// route name, where normal routes have a different structure. They start with
+		// 'GET /news' for instance.
+        if(strpos(' ', $routeName)) {
             throw new \Exception('Route must be a resource');
         }
 
+		// Remove the action part of the route, so we get our base route
         foreach ($resourceDefaults as $default) {
             $routeName = str_replace('.' . $default, '', $routeName);
         }
 
+		// Set it in the config, so we don't have to process the base route again
 		Config::set('crud::config.baseroute', $routeName);
 
         return $routeName;
