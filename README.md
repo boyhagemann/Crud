@@ -30,9 +30,9 @@ This CrudController expects 3 methods to be implemented, just like the example b
 <?php
 
 use Boyhagemann\Crud\CrudController;
-use Boyhagemann\Crud\FormBuilder;
-use Boyhagemann\Crud\ModelBuilder;
-use Boyhagemann\Crud\OverviewBuilder;
+use Boyhagemann\Form\FormBuilder;
+use Boyhagemann\Model\ModelBuilder;
+use Boyhagemann\Overview\OverviewBuilder;
 
 class NewsController extends CrudController
 {
