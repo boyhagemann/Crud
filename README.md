@@ -88,12 +88,15 @@ Well, the package checks if the model exists yet in the IoC container.
 If it doesn't, then the Eloquent model file is written and the database table is created.
 
 
-If you wanna skip the auto-generating part in your application, just set the $autoGenerate property to 'false' like this:
+If you wanna skip the auto-generating part in your application, just set autoGenerate to 'false' in yout ModelBuilder like this:
 ```php
 
 class My\Fancy\ArticleController extends CrudController
 {
-    protected $autoGenerate = false; // defaults to true
+    public function buildModel(ModelBuilder $mb)
+    {
+        $mb->autoGenerate(false); // defaults to true;
+    }
 }
 
 ```
@@ -105,7 +108,10 @@ There is an auto-updating property in the CrudController that can be set to 'tru
 
 class My\Fancy\ArticleController extends CrudController
 {
-    protected $autoUpdate   = false; // defaults to false
+    public function buildModel(ModelBuilder $mb)
+    {
+        $mb->autoUpdate(true); // defaults to false;
+    }
 }
 ```
 
