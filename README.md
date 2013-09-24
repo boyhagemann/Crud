@@ -43,26 +43,15 @@ class NewsController extends CrudController
         $fb->text('title')->label('Title')->rules('required|alpha');
         $fb->textarea('body')->label('Body');
         $fb->radio('online')->choices(array('no', 'yes'))->label('Show online?');
-        
-        // You can use a fluent typing style
         $fb->modelSelect('category_id')
            ->model('Category')
-           ->label('Choose a category')
-           ->query(function($q) {
-             $q->orderBy('title');
-           });
-           
-        // Change an element
-        $fb->get('title')->label('What is the title?');
+           ->label('Choose a category');
     }
     
     public function buildModel(ModelBuilder $mb)
     {
-        $mb->name('Article');
+        $mb->name('Article')
         $mb->table('articles');
-        
-        // Other options
-        $mb->folder('app/models');
     }
     
     public function buildOverview(OverviewBuilder $ob)
