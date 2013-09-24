@@ -23,7 +23,6 @@ class CrudServiceProvider extends ServiceProvider
     {
         $this->package('crud', 'crud');
                 
-//        $this->app->register('DeSmart\Layout\LayoutServiceProvider');
         $this->app->register('Boyhagemann\Form\FormServiceProvider');
         $this->app->register('Boyhagemann\Model\ModelServiceProvider');
         $this->app->register('Boyhagemann\Overview\OverviewServiceProvider');
