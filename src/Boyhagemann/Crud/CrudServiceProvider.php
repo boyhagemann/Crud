@@ -23,7 +23,7 @@ class CrudServiceProvider extends ServiceProvider
     {
         $this->package('crud', 'crud');
                 
-        $this->app->register('DeSmart\Layout\LayoutServiceProvider');
+//        $this->app->register('DeSmart\Layout\LayoutServiceProvider');
         $this->app->register('Boyhagemann\Form\FormServiceProvider');
         $this->app->register('Boyhagemann\Model\ModelServiceProvider');
         $this->app->register('Boyhagemann\Overview\OverviewServiceProvider');
@@ -31,10 +31,11 @@ class CrudServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        Route::get('crud',                  'Boyhagemann\Crud\ManagerController@index');
-        Route::get('crud/scan',             'Boyhagemann\Crud\ManagerController@scan');
-        Route::get('crud/manage/{class}',   'Boyhagemann\Crud\ManagerController@manage')->where('class', '(.*)');
-        Route::post('crud/create',          'Boyhagemann\Crud\ManagerController@createController');
+        Route::get('crud',                  	'Boyhagemann\Crud\ManagerController@index');
+        Route::get('crud/scan',             	'Boyhagemann\Crud\ManagerController@scan');
+        Route::get('crud/manage/{class}',   	'Boyhagemann\Crud\ManagerController@manage')->where('class', '(.*)');
+        Route::get('crud/generate/{model}',   	'Boyhagemann\Crud\ManagerController@generateModel')->where('model', '(.*)');
+        Route::post('crud/create',          	'Boyhagemann\Crud\ManagerController@createController');
     }
 
     /**

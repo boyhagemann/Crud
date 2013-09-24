@@ -12,8 +12,8 @@ use View,
     Validator,
     Input,
     Redirect,
-    Session,
-	Config;
+	Config,
+    Session;
 
 abstract class CrudController extends BaseController
 {
@@ -32,6 +32,11 @@ abstract class CrudController extends BaseController
      */
     protected $modelBuilder;
 
+	/**
+	 * @var Config
+	 */
+	protected $config;
+
     /**
      * @param FormBuilder     $formBuilder
      * @param OverviewBuilder $overviewBuilder
@@ -47,17 +52,17 @@ abstract class CrudController extends BaseController
 
         $this->buildModel($modelBuilder);
         $this->buildForm($formBuilder);
-        
+
         $modelBuilder->setFormBuilder($formBuilder);
-        
+
         $model  = $modelBuilder->build();
         $form   = $formBuilder->build();
-        
+
         $overviewBuilder->setForm($form);
         $overviewBuilder->setModel($model);
         $this->buildOverview($overviewBuilder);
 
-		Config::set('crud::config', array_replace_recursive(Config::get('crud::config'), $this->config()));
+		$this->buildConfig();
     }
 
     /**
@@ -103,11 +108,27 @@ abstract class CrudController extends BaseController
     }
 
 	/**
+	 * Override this method to provide a custom config
+	 *
 	 * @return array
 	 */
 	public function config()
 	{
 		return array();
+	}
+
+	/**
+	 *
+	 */
+	public function buildConfig()
+	{
+		Config::set('crud::config.redirects.success.store', 	$this->getBaseRoute() . '.index');
+		Config::set('crud::config.redirects.success.update', 	$this->getBaseRoute() . '.index');
+		Config::set('crud::config.redirects.success.destroy', 	$this->getBaseRoute() . '.index');
+		Config::set('crud::config.redirects.error.store', 		$this->getBaseRoute() . '.create');
+		Config::set('crud::config.redirects.error.update', 		$this->getBaseRoute() . '.edit');
+
+		Config::set('crud::config', array_replace_recursive(Config::get('crud::config'), $this->config()));
 	}
 
     /**
@@ -228,7 +249,7 @@ abstract class CrudController extends BaseController
         $form = $this->getForm();
         $model = $this->getModel()->findOrFail($id);
         $route = $this->getBaseRoute();
-		$success = Config::get('crud::redirects.success.update');
+		$success = Config::get('crud::redirects.success.destroy');
 
         $model->delete();
 
@@ -327,6 +348,8 @@ abstract class CrudController extends BaseController
         foreach ($resourceDefaults as $default) {
             $routeName = str_replace('.' . $default, '', $routeName);
         }
+
+		Config::set('crud::config.baseroute', $routeName);
 
         return $routeName;
     }

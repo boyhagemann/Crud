@@ -30,14 +30,14 @@ class ManagerController extends \BaseController
         
         return View::make('crud::manager/scan', compact('controllers'));
     }
-    
+
     public function manage($class)
     {
-        $controller = $this->getController($class);        
+        $controller = $this->getController($class);
         $model =  $controller->getModelBuilder()->getName();
         
         $fb = $this->formBuilder;
-        $fb->action(\URL::action(get_called_class() . '@createController'));
+        $fb->action(\URL::action(get_called_class() . '@create'));
         $fb->text('original')->label('Original controller')->value(get_class($controller));
         $fb->text('controller')->label('Controller name')->value($model . 'Controller');
         $fb->text('path')->label('Path')->value('../app/controllers');
