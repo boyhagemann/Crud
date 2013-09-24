@@ -87,15 +87,28 @@ So have the hell is this baby working one might ask.
 Well, the package checks if the model exists yet in the IoC container.
 If it doesn't, then the Eloquent model file is written and the database table is created.
 
-If you wanna skip the auto-generating part in your application, just set the $autogenerate property to 'false' like this:
+
+If you wanna skip the auto-generating part in your application, just set the $autoGenerate property to 'false' like this:
 ```php
 
 class My\Fancy\ArticleController extends CrudController
 {
-    protected $autogenerate = false;
+    protected $autoGenerate = false; // defaults to true
 }
 
 ```
+
+## Auto-updating models
+During development it may be handy to keep updating your database the moment you changed your FormBuilder configuration.
+There is an auto-updating property in the CrudController that can be set to 'true'.
+```php
+
+class My\Fancy\ArticleController extends CrudController
+{
+    protected $autoUpdate   = false; // defaults to false
+}
+```
+
 
 # Manage your controllers
 This package comes with a handy manager interface. 
