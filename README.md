@@ -5,7 +5,7 @@ With this package you can:
 * Build a form dynamically with the [Form Builder] (http://github.com/boyhagemann/Form) and have that form reflect your model. 
 * Generate Eloquent models with your form using the [Model Builder] (http://github.com/boyhagemann/Model).
 * Have an admin interface for your models using the [Overview Builder] (http://github.com/boyhagemann/Overview).
-* Point a resource route to CrudController instance and you are ready to rock!
+* Point a resource route to a CrudController instance and you are ready to rock!
 
 
 ## Install
