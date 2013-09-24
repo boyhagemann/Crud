@@ -1,15 +1,14 @@
 Crud
 ====
-
 With this package you can:
 
 * Build a form dynamically with the [Form Builder] (http://github.com/boyhagemann/Form) and have that form reflect your model. 
 * Generate Eloquent models with your form using the [Model Builder] (http://github.com/boyhagemann/Model).
 * Have an admin interface for your models, including all the CRUD routes automatically using the [Overview Builder] (http://github.com/boyhagemann/Overview).
+* Point a resource route to CrudController instance and you are ready to rock!
 
 
 ## Install
-
 Use [Composer] (http://getcomposer.org) to install the package into your application
 ```json
 require {
@@ -25,6 +24,8 @@ Then add the following line in app/config/app.php:
 ```
 
 ## Example usage
+The first thing we need to do is create a controller that extends from the CrudController.
+This CrudController expects 3 methods to be implemented, just like the example below.
 
 ```php
 <?php
@@ -73,7 +74,30 @@ class NewsController extends CrudController
 }
 ```
 
-# The Crud Manager interface
+After you have created your controller, just create a resourceful route pointing to your controller.
+```php
+Route::resource('admin/news', 'NewsController');
+```
+
+That's it. Open your browser and enter the route you just created.
+
+## Auto-generating models
+You might have noticed that your Eloquent model does not exist yet. 
+So have the hell is this baby working one might ask.
+Well, the package checks if the model exists yet in the IoC container.
+If it doesn't, then the Eloquent model file is written and the database table is created.
+
+If you wanna skip the auto-generating part in your application, just set the $autogenerate property to 'false' like this:
+```php
+
+class My\Fancy\ArticleController extends CrudController
+{
+    protected $autogenerate = false;
+}
+
+```
+
+# Manage your controllers
 This package comes with a handy manager interface. 
 It lets you generate new crud controllers with a simple form.
 You can also copy crud controllers from existing packages and put them in your application folder.
