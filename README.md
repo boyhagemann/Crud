@@ -1,17 +1,14 @@
 Crud
 ====
 
-## What you can do
+With this package you can:
 
-* Extend the CrudController and use all the methods according to a resourceful Laravel route.
-* Build a form dynamically
-* Use this form to generate an Eloquent model and save it in your application
-* Create and update database table and columns needed for the model
-* Use data from other models as form elements
-* Included are some handy form macros to automatically render the whole form
+* Build a form dynamically with the [Form Builder] (http://github.com/boyhagemann/Form) and have that form reflect your model. 
+* Generate Eloquent models with your form using the [Model Builder] (http://github.com/boyhagemann/Model).
+* Have an admin interface for your models, including all the CRUD routes automatically using the [Overview Builder] (http://github.com/boyhagemann/Overview).
 
 
-##
+## Install
 
 Use [Composer] (http://getcomposer.org) to install the package into your application
 ```json
@@ -75,3 +72,17 @@ class NewsController extends CrudController
 
 }
 ```
+
+# The Crud Manager interface
+This package comes with a handy manager interface. 
+It lets you generate new crud controllers with a simple form.
+You can also copy crud controllers from existing packages and put them in your application folder.
+That way you have total control of the crud controller without changing the original package.
+
+The manager sits under this url:
+```
+http://{yourdomain}/crud
+```
+From there yout can generate a fresh controller file or convert an existing one from a package.
+
+
