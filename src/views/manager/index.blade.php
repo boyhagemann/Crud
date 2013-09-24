@@ -6,4 +6,5 @@
     @endforeach
 </ul>
 
-<a href="{{ URL::action('Boyhagemann\Crud\ManagerController@scan') }}">Scan for new controllers</a>
+<a href="{{ URL::action('Boyhagemann\Crud\ManagerController@scan') }}">Scan for new controllers</a> or
+<a href="{{ URL::action('Boyhagemann\Crud\ManagerController@create') }}">Create a new controller</a>

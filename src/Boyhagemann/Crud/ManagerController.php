@@ -2,7 +2,7 @@
 
 namespace Boyhagemann\Crud;
 use Boyhagemann\Form\FormBuilder;
-use View;
+use View, Input, URL, App, Redirect;
 
 class ManagerController extends \BaseController
 {
@@ -37,7 +37,7 @@ class ManagerController extends \BaseController
         $model =  $controller->getModelBuilder()->getName();
         
         $fb = $this->formBuilder;
-        $fb->action(\URL::action(get_called_class() . '@create'));
+        $fb->action(URL::action(get_called_class() . '@store'));
         $fb->text('original')->label('Original controller')->value(get_class($controller));
         $fb->text('controller')->label('Controller name')->value($model . 'Controller');
         $fb->text('path')->label('Path')->value('../app/controllers');
@@ -45,18 +45,33 @@ class ManagerController extends \BaseController
                 
         return View::make('crud::manager/manage', compact('form'));
     }
+
+	public function create()
+	{
+		$fb = $this->formBuilder;
+		$fb->action(URL::action(get_called_class() . '@store'));
+		$fb->text('class')->label('Model class name');
+		$fb->text('path')->label('Path')->value('../app/controllers');
+		$form = $fb->build();
+
+		return View::make('crud::manager/create', compact('form'));
+	}
     
-    public function create()
+    public function store()
     {
-        $controller = \App::make(\Input::get('original'));        
-        
-        $this->generator->setController($controller);
-        
-        $filename = \Input::get('path') . '/' . \Input::get('controller') . '.php';
-        
+		if(Input::has('original')) {
+			$controller = App::make(Input::get('original'));
+			$this->generator->setController($controller);
+			$filename = \Input::get('path') . '/' . Input::get('controller') . '.php';
+		}
+		else {
+			$this->generator->setClassName(Input::get('class'));
+			$filename = \Input::get('path') . '/' . Input::get('class') . 'Controller.php';
+		}
+
         file_put_contents($filename, $this->generator->generate());  
         
-        return Redirect::route('crud');
+        return Redirect::to('crud');
     }
     
     /**

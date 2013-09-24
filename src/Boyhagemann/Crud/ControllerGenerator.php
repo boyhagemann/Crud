@@ -8,6 +8,7 @@ use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 use Zend\Code\Generator\ParameterGenerator;
 use Boyhagemann\Form\Element\InputElement;
+use Str;
 
 class ControllerGenerator
 {
@@ -16,7 +17,9 @@ class ControllerGenerator
 	 */
 	protected $generator;
         
-        protected $controller;
+    protected $controller;
+
+	protected $class;
 
         /**
 	 * @param FileGenerator $generator
@@ -26,18 +29,28 @@ class ControllerGenerator
 		$this->generator = $generator;
 	}
 
-        public function setController(CrudController $controller)
-        {
-            $this->controller = $controller;
-        }
+	public function setController(CrudController $controller)
+	{
+		$this->controller = $controller;
+	}
+
+	public function setClassName($class)
+	{
+		$this->class = $class;
+	}
 
 	public function generate()
 	{
-            $modelBuilder = $this->controller->getModelBuilder();
-		$className = $modelBuilder->getName() . 'Controller';
+		if($this->controller) {
+			$modelBuilder = $this->controller->getModelBuilder();
+			$className = $modelBuilder->getName();
+		}
+		else {
+			$className = $this->class;
+		}
 
 		$class = new ClassGenerator();
-		$class->setName($className);
+		$class->setName($className . 'Controller');
 		$class->setExtendedClass('CrudController');
 
 		$param = new ParameterGenerator();
@@ -48,7 +61,7 @@ class ControllerGenerator
                 
 		$param = new ParameterGenerator();
 		$param->setName('mb')->setType('ModelBuilder');
-		$body = '';
+		$body = sprintf('$mb->name(\'%s\')->table(\'%s\');', $className, Str::snake($className));
 		$docblock = '@param ModelBuilder $mb';
 		$class->addMethod('buildModel', array($param), MethodGenerator::FLAG_PUBLIC, $body, $docblock);
                                 
@@ -75,7 +88,11 @@ class ControllerGenerator
 	 */
 	protected function generateFormBuilderBody()
 	{
-            $formBuilder = $this->controller->getFormBuilder();
+		if(!$this->controller) {
+			return '';
+		}
+
+		$formBuilder = $this->controller->getFormBuilder();
 		$parts = array();
 
 		foreach($formBuilder->elements as $element) {

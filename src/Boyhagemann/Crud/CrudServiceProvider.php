@@ -33,7 +33,8 @@ class CrudServiceProvider extends ServiceProvider
         Route::get('crud',                  	'Boyhagemann\Crud\ManagerController@index');
         Route::get('crud/scan',             	'Boyhagemann\Crud\ManagerController@scan');
         Route::get('crud/manage/{class}',   	'Boyhagemann\Crud\ManagerController@manage')->where('class', '(.*)');
-        Route::post('crud/create',          	'Boyhagemann\Crud\ManagerController@createController');
+        Route::get('crud/create',          		'Boyhagemann\Crud\ManagerController@create');
+        Route::post('crud/create',          	'Boyhagemann\Crud\ManagerController@store');
     }
 
     /**
