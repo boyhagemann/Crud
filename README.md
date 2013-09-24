@@ -26,7 +26,6 @@ Then add the following line in app/config/app.php:
 ## Example usage
 The first thing we need to do is create a controller that extends from the CrudController.
 This CrudController expects 3 methods to be implemented, just like the example below.
-
 ```php
 <?php
 
@@ -79,7 +78,6 @@ If it doesn't, then the Eloquent model file is written and the database table is
 
 If you wanna skip the auto-generating part in your application, just set autoGenerate to 'false' in yout ModelBuilder like this:
 ```php
-
 class My\Fancy\ArticleController extends CrudController
 {
     public function buildModel(ModelBuilder $mb)
@@ -94,7 +92,6 @@ class My\Fancy\ArticleController extends CrudController
 During development it may be handy to keep updating your database the moment you changed your FormBuilder configuration.
 There is an auto-updating property in the CrudController that can be set to 'true'.
 ```php
-
 class My\Fancy\ArticleController extends CrudController
 {
     public function buildModel(ModelBuilder $mb)
@@ -104,6 +101,38 @@ class My\Fancy\ArticleController extends CrudController
 }
 ```
 
+## Change the Config file
+You can edit several options for each crud controller with just a simple config array.
+One way to this is, is to override the config() method in your controller.
+It just needs an array returned with the right format. 
+The format is explained in the annotation of the method itself.
+```php
+class My\Fancy\ArticleController extends CrudController
+{
+    public function config()
+    {
+        return array(
+        	'view' => array(
+        		'index'     => 'crud::crud.index',
+        		'create'    => 'crud::crud.create',
+        		'edit'      => 'crud::crud.edit',
+        	),
+        	'redirects' => array(
+        	    'success' => array(
+        	        'store'     => 'admin.article.index',
+        	        'update'    => 'admin.article.index',
+        	        'delete'    => 'admin.article.index',
+        	    ),
+        	    'error' => array(
+        	        'store'     => 'admin.article.create',
+        	        'update'    => 'admin.article.edit',
+        	        'delete'    => 'admin.article.index',
+        	    )
+        	)
+        );
+    }
+}
+```
 
 ## Manage your controllers
 This package comes with a handy manager interface. 
