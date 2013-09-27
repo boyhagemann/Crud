@@ -11,9 +11,9 @@
         "php": ">=5.3.0",
         "illuminate/support": "4.0.x",
         "zendframework/zend-code": "dev-master",
-	"boyhagemann/form": "dev-master",
-	"boyhagemann/model": "dev-master",
-	"boyhagemann/overview": "dev-master"
+        "boyhagemann/form": "dev-master",
+        "boyhagemann/model": "dev-master",
+        "boyhagemann/overview": "dev-master"
     },
     "autoload": {
         "psr-0": {
