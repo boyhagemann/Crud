@@ -66,19 +66,19 @@ abstract class CrudController extends BaseController
     }
 
     /**
-     * @param FormBuilder $formBuilder
+     * @param FormBuilder $fb
      */
-    abstract public function buildForm(FormBuilder $formBuilder);
+    abstract public function buildForm(FormBuilder $fb);
 
     /**
-     * @param OverviewBuilder $overviewBuilder
+     * @param OverviewBuilder $ob
      */
-    abstract public function buildOverview(OverviewBuilder $overviewBuilder);
+    abstract public function buildOverview(OverviewBuilder $ob);
 
     /**
-     * @param OverviewBuilder $overviewBuilder
+     * @param OverviewBuilder $mb
      */
-    abstract public function buildModel(ModelBuilder $modelBuilder);
+    abstract public function buildModel(ModelBuilder $mb);
 
     /**
      * 
