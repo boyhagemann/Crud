@@ -65,6 +65,7 @@ abstract class CrudController extends BaseController
 		$this->buildConfig();
     }
 
+
     /**
      * @param FormBuilder $fb
      */
