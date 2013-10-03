@@ -13,7 +13,8 @@ use View,
     Input,
     Redirect,
 	Config,
-    Session;
+    Session,
+	Event;
 
 abstract class CrudController extends BaseController
 {
@@ -38,29 +39,29 @@ abstract class CrudController extends BaseController
 	protected $config;
 
     /**
-     * @param FormBuilder     $formBuilder
-     * @param OverviewBuilder $overviewBuilder
-     * @param ModelBuilder 	  $modelBuilder
+     * @param FormBuilder     $fb
+     * @param ModelBuilder 	  $mb
+     * @param OverviewBuilder $ob
      */
-    public function __construct(FormBuilder $formBuilder, OverviewBuilder $overviewBuilder, ModelBuilder $modelBuilder)
+    public function __construct(FormBuilder $fb, ModelBuilder $mb, OverviewBuilder $ob)
     {
-		$formBuilder->setName(get_called_class());
+		Event::listen('formBuilder.buildElement.post', array($this, 'buildFormElement'));
 
-        $this->formBuilder = $formBuilder;
-        $this->modelBuilder = $modelBuilder;
-        $this->overviewBuilder = $overviewBuilder;
+		$fb->setName(get_called_class());
 
-        $this->buildModel($modelBuilder);
-        $this->buildForm($formBuilder);
+        $this->formBuilder = $fb;
+        $this->modelBuilder = $mb;
+        $this->overviewBuilder = $ob;
 
-        $modelBuilder->setFormBuilder($formBuilder);
+        $this->buildModel($mb);
+        $this->buildForm($fb);
 
-        $model  = $modelBuilder->build();
-        $form   = $formBuilder->build();
+        $form   = $fb->build();
+        $model  = $mb->build();
 
-        $overviewBuilder->setForm($form);
-        $overviewBuilder->setModel($model);
-        $this->buildOverview($overviewBuilder);
+		$ob->setForm($form);
+		$ob->setModel($model);
+        $this->buildOverview($ob);
 
 		$this->buildConfig();
     }
@@ -365,5 +366,55 @@ abstract class CrudController extends BaseController
 
         return $routeName;
     }
+
+	/**
+	 * @param \Boyhagemann\Form\Element\ElementInterface $element
+	 */
+	public function buildFormElement(\Boyhagemann\Form\Element\ElementInterface $element)
+	{
+		$mb = $this->getModelBuilder();
+		$name = $element->getName();
+		$options = $element->getOptions();
+		$type = $element->getType();
+		$rules = $element->getRules();
+
+
+		switch($type) {
+
+			case 'text':
+				$mb->column($name)->type('string');
+				break;
+
+			case 'textarea':
+				$mb->column($name)->type('text');
+				break;
+
+			case 'checkbox':
+			case 'percent':
+			case 'integer':
+				$mb->column($name)->type('integer');
+				break;
+
+			case 'select':
+				if($this->hasRule($name)->type('integer')) {
+					$this->column($name)->type('integer');
+				}
+				else {
+					$this->column($name)->type('string');
+				}
+				break;
+
+			case 'modelSelect':
+				$mb->column($name)->type('integer');
+//				$mb->hasMany($element->getAlias());
+				break;
+
+		}
+
+		if ($element->getRules()) {
+			$mb->get($name)->validate($element->getRules());
+		}
+
+	}
 
 }

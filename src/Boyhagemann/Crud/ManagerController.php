@@ -51,6 +51,7 @@ class ManagerController extends \BaseController
 		$fb = $this->formBuilder;
 		$fb->action(URL::action(get_called_class() . '@store'));
 		$fb->text('class')->label('Model class name');
+		$fb->text('url')->label('Url to the model overview');
 		$fb->text('path')->label('Path')->value('../app/controllers');
 		$form = $fb->build();
 
@@ -62,16 +63,24 @@ class ManagerController extends \BaseController
 		if(Input::has('original')) {
 			$controller = App::make(Input::get('original'));
 			$this->generator->setController($controller);
-			$filename = \Input::get('path') . '/' . Input::get('controller') . '.php';
+			$class = Input::get('controller');
+			$filename = \Input::get('path') . '/' . $class . '.php';
 		}
 		else {
 			$this->generator->setClassName(Input::get('class'));
-			$filename = \Input::get('path') . '/' . Input::get('class') . 'Controller.php';
+			$class = Input::get('class') . 'Controller';
+			$filename = \Input::get('path') . '/' . $class . '.php';
 		}
 
-        file_put_contents($filename, $this->generator->generate());  
-        
-        return Redirect::to('crud');
+		// Write the new controller file to the controller folder
+        file_put_contents($filename, $this->generator->generate());
+
+		// Add resource route to routes.php
+		$line = sprintf(PHP_EOL . 'Route::resource(\'%s\', \'%s\');', Input::get('url'), $class);
+		file_put_contents(app_path() . '/routes.php', $line, FILE_APPEND);
+
+		// Redirect to the resource url overview
+        return Redirect::to(Input::get('url'));
     }
     
     /**
