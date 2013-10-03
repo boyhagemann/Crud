@@ -95,6 +95,24 @@ If your database table already exists, it will add only the non-existing columns
 If you don't want to generate or update the database tables, just remove this line from
 the modelBuilder instance. You can also add false as a parameter to the autoGenerate method.
 
+## View mode
+Sometimes you want to have a slightly different form if your creating or editing.
+This can be tackled with some helper methods:
+- isOverview
+- isCreate
+- isEdit
+- isDelete
+
+```php
+public function buildForm(FormBuilder $fb)
+{
+    $title = $fb->text('title')->label('My title');
+    
+    if($this->isOverview()) {
+        $title->label('Changed label in the overview');
+    }
+}
+```
 
 ## Change the Config file
 You can edit several options for each crud controller with just a simple config array.
