@@ -6,6 +6,7 @@ With this package you can:
 * Generate Eloquent models with your form using the [Model Builder] (http://github.com/boyhagemann/Model).
 * Have an admin interface for your models using the [Overview Builder] (http://github.com/boyhagemann/Overview).
 * Point a resource route to a CrudController instance and you are ready to rock!
+* Use the include Manager UI to create skeleton controllers for you.
 
 
 ## Install
@@ -138,5 +139,8 @@ The manager sits under this url:
 http://{yourdomain}/crud
 ```
 From there yout can generate a fresh controller file or convert an existing one from a package.
+It will also add a resourceful route to your existing routes. 
+After creating a new controller, you will be redirected to your new resource right away!
+Just add some fields to you FormBuilder instance in the controller and you can enjoy the power of this Crud package.
 
 
