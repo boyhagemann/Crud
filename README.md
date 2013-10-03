@@ -53,6 +53,7 @@ class NewsController extends CrudController
     {
         $mb->name('Article')
         $mb->table('articles');
+        $mb->autoGenerate();
     }
     
     public function buildOverview(OverviewBuilder $ob)
@@ -77,31 +78,21 @@ So have the hell is this baby working one might ask.
 Well, the package checks if the model exists yet in the IoC container.
 If it doesn't, then the Eloquent model file is written and the database table is created.
 
-
-If you wanna skip the auto-generating part in your application, just set autoGenerate to 'false' in yout ModelBuilder like this:
 ```php
 class My\Fancy\ArticleController extends CrudController
 {
     public function buildModel(ModelBuilder $mb)
     {
-        $mb->autoGenerate(false); // defaults to true;
+        $mb->autoGenerate();
     }
 }
 
 ```
 
-## Auto-updating models
-During development it may be handy to keep updating your database the moment you changed your FormBuilder configuration.
-There is an auto-updating property in the CrudController that can be set to 'true'.
-```php
-class My\Fancy\ArticleController extends CrudController
-{
-    public function buildModel(ModelBuilder $mb)
-    {
-        $mb->autoUpdate(true); // defaults to false;
-    }
-}
-```
+If your database table already exists, it will add only the non-existing columns.
+If you don't want to generate or update the database tables, just remove this line from
+the modelBuilder instance. You can also add false as a parameter to the autoGenerate method.
+
 
 ## Change the Config file
 You can edit several options for each crud controller with just a simple config array.
