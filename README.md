@@ -23,12 +23,13 @@ Then add the following line in app/config/app.php:
 "Boyhagemann\Crud\CrudServiceProvider"
 ...
 ```
-Also, I am assuming you have a working database connection in your app/config/database.php file. 
-Otherwise there will be no magic!
 
 ## Example usage
 The first thing we need to do is create a controller that extends from the CrudController.
 This CrudController expects 3 methods to be implemented, just like the example below.
+> I am assuming you have a working database connection in your app/config/database.php file. 
+> Otherwise there will be no magic!
+
 ```php
 <?php
 
