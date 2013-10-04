@@ -6,6 +6,7 @@ With this package you can:
 * Generate Eloquent models with your form using the [Model Builder] (http://github.com/boyhagemann/Model).
 * Have an admin interface for your models using the [Overview Builder] (http://github.com/boyhagemann/Overview).
 * Point a resource route to a CrudController instance and you are ready to rock!
+* Use the include Manager UI to create skeleton controllers for you.
 
 
 ## Install
@@ -22,12 +23,13 @@ Then add the following line in app/config/app.php:
 "Boyhagemann\Crud\CrudServiceProvider"
 ...
 ```
-Also, I am assuming you have a working database connection in your app/config/database.php file. 
-Otherwise there will be no magic!
 
 ## Example usage
 The first thing we need to do is create a controller that extends from the CrudController.
 This CrudController expects 3 methods to be implemented, just like the example below.
+> I am assuming you have a working database connection in your app/config/database.php file. 
+> Otherwise there will be no magic!
+
 ```php
 <?php
 
@@ -53,6 +55,7 @@ class NewsController extends CrudController
     {
         $mb->name('Article')
         $mb->table('articles');
+        $mb->autoGenerate();
     }
     
     public function buildOverview(OverviewBuilder $ob)
@@ -77,28 +80,36 @@ So have the hell is this baby working one might ask.
 Well, the package checks if the model exists yet in the IoC container.
 If it doesn't, then the Eloquent model file is written and the database table is created.
 
-
-If you wanna skip the auto-generating part in your application, just set autoGenerate to 'false' in yout ModelBuilder like this:
 ```php
 class My\Fancy\ArticleController extends CrudController
 {
     public function buildModel(ModelBuilder $mb)
     {
-        $mb->autoGenerate(false); // defaults to true;
+        $mb->autoGenerate();
     }
 }
 
 ```
 
-## Auto-updating models
-During development it may be handy to keep updating your database the moment you changed your FormBuilder configuration.
-There is an auto-updating property in the CrudController that can be set to 'true'.
+If your database table already exists, it will add only the non-existing columns.
+If you don't want to generate or update the database tables, just remove this line from
+the modelBuilder instance. You can also add false as a parameter to the autoGenerate method.
+
+## View mode
+Sometimes you want to have a slightly different form if your creating or editing.
+This can be tackled with some helper methods:
+- isOverview
+- isCreate
+- isEdit
+- isDelete
+
 ```php
-class My\Fancy\ArticleController extends CrudController
+public function buildForm(FormBuilder $fb)
 {
-    public function buildModel(ModelBuilder $mb)
-    {
-        $mb->autoUpdate(true); // defaults to false;
+    $title = $fb->text('title')->label('My title');
+    
+    if($this->isOverview()) {
+        $title->label('Changed label in the overview');
     }
 }
 ```
@@ -147,5 +158,13 @@ The manager sits under this url:
 http://{yourdomain}/crud
 ```
 From there yout can generate a fresh controller file or convert an existing one from a package.
+It will also add a resourceful route to your existing routes. 
+After creating a new controller, you will be redirected to your new resource right away!
+Just add some fields to you FormBuilder instance in the controller and you can enjoy the power of this Crud package.
 
+## Your application
+Here are some examples of how you can benifit more of the Crud package in your application.
 
+- [Notify the user to add some form elements] (https://gist.github.com/boyhagemann/6822421)
+- [How to add a layout to your package] (https://gist.github.com/boyhagemann/6822567)
+- [Quickly add a menu to your layout] (https://gist.github.com/boyhagemann/6822661)
