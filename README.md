@@ -166,3 +166,4 @@ Just add some fields to you FormBuilder instance in the controller and you can e
 Here are some examples of how you can benifit more of the Crud package in your application.
 
 - [Notify the user to add some form elements] (https://gist.github.com/boyhagemann/6822421)
+- [How to add a layout to your package] (https://gist.github.com/boyhagemann/6822567)
