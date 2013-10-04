@@ -167,3 +167,4 @@ Here are some examples of how you can benifit more of the Crud package in your a
 
 - [Notify the user to add some form elements] (https://gist.github.com/boyhagemann/6822421)
 - [How to add a layout to your package] (https://gist.github.com/boyhagemann/6822567)
+- [Quickly add a menu to your layout] (https://gist.github.com/boyhagemann/6822661)
