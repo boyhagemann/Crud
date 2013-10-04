@@ -1,5 +1,6 @@
-
-<h1>Create a new resource</h1>
+<div class="page-header">
+	<h1>Create a new resource</h1>
+</div>
 
 <div class="col-12">
 {{ Form::render($form) }}

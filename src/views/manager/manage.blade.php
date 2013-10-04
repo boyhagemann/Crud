@@ -1,5 +1,6 @@
-
-<h2>Manage</h2>
+<div class="page-header">
+	<h1>Manage resource</h1>
+</div>
 
 {{ Form::render($form) }}
 

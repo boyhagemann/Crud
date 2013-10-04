@@ -1,9 +1,11 @@
-<h1>Resource manager</h1>
-<p>
-	Here can edit or create new resources.
-	By creating a new resource, a resourceful route will be added to your existing ones.
-</p>
-<a href="{{ URL::action('Boyhagemann\Crud\ManagerController@create') }}" class="btn btn-primary">Create a new resource</a>
+<div class="page-header">
+	<h1>Resource manager</h1>
+	<p>
+		Here can edit or create new resources.
+		By creating a new resource, a resourceful route will be added to your existing ones.
+	</p>
+	<a href="{{ URL::action('Boyhagemann\Crud\ManagerController@create') }}" class="btn btn-primary">Create a new resource</a>
+</div>
 
 <hr>
 <br>
