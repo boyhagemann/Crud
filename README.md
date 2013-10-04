@@ -148,6 +148,8 @@ class My\Fancy\ArticleController extends CrudController
 ```
 
 ## Manage your controllers
+![The resource manager interface](screen-resource-manager.jpg)
+
 This package comes with a handy manager interface. 
 It lets you generate new crud controllers with a simple form.
 You can also copy crud controllers from existing packages and put them in your application folder.
