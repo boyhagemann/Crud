@@ -162,4 +162,7 @@ It will also add a resourceful route to your existing routes.
 After creating a new controller, you will be redirected to your new resource right away!
 Just add some fields to you FormBuilder instance in the controller and you can enjoy the power of this Crud package.
 
+## Your application
+Here are some examples of how you can benifit more of the Crud package in your application.
 
+- [Notify the user to add some form elements] (https://gist.github.com/boyhagemann/6822421)
