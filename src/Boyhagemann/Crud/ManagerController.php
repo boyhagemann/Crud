@@ -38,9 +38,20 @@ class ManagerController extends \BaseController
         
         $fb = $this->formBuilder;
         $fb->action(URL::action(get_called_class() . '@store'));
-        $fb->text('original')->label('Original controller')->value(get_class($controller));
-        $fb->text('controller')->label('Controller name')->value($model . 'Controller');
-        $fb->text('path')->label('Path')->value('../app/controllers');
+
+        $fb->text('original')
+			->label('Original controller')
+			->value(get_class($controller));
+
+        $fb->text('controller')
+			->label('Controller name')
+			->value($model . 'Controller')
+			->placeholder('Enter a name for the controller, for example \'NewsController\'.');
+
+        $fb->text('path')
+			->label('Path')
+			->value('../app/controllers');
+
         $form = $fb->build();
                 
         return View::make('crud::manager/manage', compact('form'));
@@ -50,9 +61,21 @@ class ManagerController extends \BaseController
 	{
 		$fb = $this->formBuilder;
 		$fb->action(URL::action(get_called_class() . '@store'));
-		$fb->text('class')->label('Model class name');
-		$fb->text('url')->label('Url to the model overview');
-		$fb->text('path')->label('Path')->value('../app/controllers');
+
+		$fb->text('class')
+			->label('Name')
+			->placeholder('Enter a name for the resource, for example \'News\'.');
+
+		$fb->text('url')
+			->label('Url to the model overview')
+			->placeholder('What should be the url pointing to your resource? An example would be \'admin/news\'.');
+
+		$fb->text('path')
+			->label('Path')
+			->value('../app/controllers')
+			->help('This is the folder where the controller is being generated in. It defaults to
+					the application controllers folder');
+
 		$form = $fb->build();
 
 		return View::make('crud::manager/create', compact('form'));
@@ -94,14 +117,5 @@ class ManagerController extends \BaseController
         return \App::make($class);        
     }
 
-    public function fromJson()
-    {
-        
-    }
-
-    public function toJson($filename)
-    {
-        var_dump($filename); exit;
-    }
 
 }

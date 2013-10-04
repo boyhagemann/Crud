@@ -1,6 +1,10 @@
 
-<h2>Create</h2>
+<h1>Create a new resource</h1>
 
+<div class="col-12">
 {{ Form::render($form) }}
+</div>
 
-<a href="{{ URL::action('Boyhagemann\Crud\ManagerController@index') }}">View used controllers</a>
+<hr>
+
+<a href="{{ URL::action('Boyhagemann\Crud\ManagerController@index') }}" class="">Back to the resource manager</a>
