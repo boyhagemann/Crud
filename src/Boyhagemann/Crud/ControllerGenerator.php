@@ -52,6 +52,10 @@ class ControllerGenerator
 		$class = new ClassGenerator();
 		$class->setName($className . 'Controller');
 		$class->setExtendedClass('CrudController');
+		$class->addUse('Boyhagemann\Crud\CrudController');
+		$class->addUse('Boyhagemann\Form\FormBuilder');
+		$class->addUse('Boyhagemann\Model\ModelBuilder');
+		$class->addUse('Boyhagemann\Overview\OverviewBuilder');
 
 		$param = new ParameterGenerator();
 		$param->setName('fb')->setType('FormBuilder');
@@ -74,12 +78,6 @@ class ControllerGenerator
 
 
 		$this->generator->setClass($class);
-                $this->generator->setUses(array(
-                    'Boyhagemann\Crud\CrudController',
-                    'Boyhagemann\Form\FormBuilder',
-                    'Boyhagemann\Model\ModelBuilder',
-                    'Boyhagemann\Overview\OverviewBuilder',
-                ));
 
 		return $this->generator->generate();
 	}

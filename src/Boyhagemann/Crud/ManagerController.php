@@ -92,11 +92,12 @@ class ManagerController extends \BaseController
 		else {
 			$this->generator->setClassName(Input::get('class'));
 			$class = Input::get('class') . 'Controller';
-			$filename = \Input::get('path') . '/' . $class . '.php';
+			$filename = \Input::get('path') . '/' . str_replace('\\', '/', $class) . '.php';
 		}
 
 		// Write the new controller file to the controller folder
-        file_put_contents($filename, $this->generator->generate());
+		@mkdir(dirname($filename), 0755, true);
+		file_put_contents($filename, $this->generator->generate());
 
 		// Add resource route to routes.php
 		$line = sprintf(PHP_EOL . 'Route::resource(\'%s\', \'%s\');', Input::get('url'), $class);
@@ -105,7 +106,7 @@ class ManagerController extends \BaseController
 		// Redirect to the resource url overview
         return Redirect::to(Input::get('url'));
     }
-    
+
     /**
      * 
      * @param string $key
