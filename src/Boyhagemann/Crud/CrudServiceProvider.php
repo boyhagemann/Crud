@@ -30,11 +30,11 @@ class CrudServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        Route::get('crud',                  	'Boyhagemann\Crud\ManagerController@index');
-        Route::get('crud/scan',             	'Boyhagemann\Crud\ManagerController@scan');
-        Route::get('crud/manage/{class}',   	'Boyhagemann\Crud\ManagerController@manage')->where('class', '(.*)');
-        Route::get('crud/create',          		'Boyhagemann\Crud\ManagerController@create');
-        Route::post('crud/create',          	'Boyhagemann\Crud\ManagerController@store');
+        Route::get('admin/crud',                  	array('as' => 'admin.crud.index', 'uses' => 'Boyhagemann\Crud\ManagerController@index'));
+        Route::get('admin/crud/scan',             	array('as' => 'admin.crud.scan', 'uses' => 'Boyhagemann\Crud\ManagerController@scan'));
+        Route::get('admin/crud/manage/{class}',   	array('as' => 'admin.crud.manage', 'uses' => 'Boyhagemann\Crud\ManagerController@manage'))->where('class', '(.*)');
+        Route::get('admin/crud/create',          	array('as' => 'admin.crud.create', 'uses' => 'Boyhagemann\Crud\ManagerController@create'));
+        Route::post('admin/crud/create',          	array('as' => 'admin.crud.store', 'uses' => 'Boyhagemann\Crud\ManagerController@store'));
     }
 
     /**
