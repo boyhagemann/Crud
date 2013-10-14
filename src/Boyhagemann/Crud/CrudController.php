@@ -163,6 +163,9 @@ abstract class CrudController extends BaseController
 		// Now that everything is configured, let's trigger an event so
 		// we can hook into this controller from the outside.
 		Event::fire('crudController.init', array($this));
+
+		Event::listen('crud::store.pre', array($this, 'onCreate'));
+		Event::listen('crud::update.pre', array($this, 'onUpdate'));
 	}
 
     /**
@@ -225,6 +228,8 @@ abstract class CrudController extends BaseController
 
         $this->prepare($model);
 
+		Event::fire('crud::store.pre', $model);
+
         $model->save();
 
         $this->saveRelations($model);
@@ -275,6 +280,8 @@ abstract class CrudController extends BaseController
         }
 
         $this->prepare($model);
+
+		Event::fire('crud::update.pre', $model);
 
         $model->save();
 
