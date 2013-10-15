@@ -500,4 +500,14 @@ abstract class CrudController extends BaseController
 		return $this->viewMode == __CLASS__ . '::destroy';
 	}
 
+
+	public function onCreate(\Eloquent $model)
+	{
+
+	}
+	public function onUpdate(\Eloquent $model)
+	{
+
+	}
+
 }
