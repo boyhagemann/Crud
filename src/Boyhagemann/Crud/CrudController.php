@@ -164,8 +164,13 @@ abstract class CrudController extends BaseController
 		// we can hook into this controller from the outside.
 		Event::fire('crudController.init', array($this));
 
-		Event::listen('crud::store.pre', array($this, 'onCreate'));
-		Event::listen('crud::update.pre', array($this, 'onUpdate'));
+		if(method_exists($this, 'onCreate')) {
+			Event::listen('crud::store.pre', array($this, 'onCreate'));
+		}
+
+		if(method_exists($this, 'onUpdate')) {
+			Event::listen('crud::update.pre', array($this, 'onUpdate'));
+		}
 	}
 
     /**
@@ -500,14 +505,5 @@ abstract class CrudController extends BaseController
 		return $this->viewMode == __CLASS__ . '::destroy';
 	}
 
-
-	public function onCreate(\Eloquent $model)
-	{
-
-	}
-	public function onUpdate(\Eloquent $model)
-	{
-
-	}
 
 }
