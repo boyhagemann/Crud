@@ -447,12 +447,12 @@ abstract class CrudController extends BaseController
 				break;
 
 			case 'select':
-				if($this->hasRule($name)->type('integer')) {
-					$this->column($name)->type('integer');
-				}
-				else {
-					$this->column($name)->type('string');
-				}
+//				if($this->hasRule($name)->type('integer')) {
+//					$this->column($name)->type('integer');
+//				}
+//				else {
+					$mb->column($name)->type('string');
+//				}
 				break;
 
 			case 'modelSelect':
