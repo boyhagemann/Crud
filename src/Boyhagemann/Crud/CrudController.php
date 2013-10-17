@@ -165,11 +165,15 @@ abstract class CrudController extends BaseController
 		Event::fire('crudController.init', array($this));
 
 		if(method_exists($this, 'onCreate')) {
-			Event::listen('crud::store.pre', array($this, 'onCreate'));
+			Event::listen('crud::creating', array($this, 'onCreate'));
 		}
 
 		if(method_exists($this, 'onUpdate')) {
-			Event::listen('crud::update.pre', array($this, 'onUpdate'));
+			Event::listen('crud::updating', array($this, 'onUpdate'));
+		}
+
+		if(method_exists($this, 'onSaved')) {
+			Event::listen('crud::saved', array($this, 'onSaved'));
 		}
 	}
 
@@ -233,9 +237,11 @@ abstract class CrudController extends BaseController
 
         $this->prepare($model);
 
-		Event::fire('crud::store.pre', $model);
+		Event::fire('crud::creating', array($model, Input::all()));
 
         $model->save();
+
+		Event::fire('crud::saved', array($model, Input::all()));
 
         $this->saveRelations($model);
 
@@ -286,9 +292,11 @@ abstract class CrudController extends BaseController
 
         $this->prepare($model);
 
-		Event::fire('crud::update.pre', $model);
+		Event::fire('crud::updating', array($model, Input::all()));
 
         $model->save();
+
+		Event::fire('crud::saved', array($model, Input::all()));
 
         $this->saveRelations($model);
 
@@ -428,6 +436,11 @@ abstract class CrudController extends BaseController
 	 */
 	public function buildFormElement(\Boyhagemann\Form\Element\ElementInterface $element)
 	{
+		// Only continue if the element has to be mapped to a model.
+		if(!$element->getOption('mapped')) {
+			return;
+		}
+
 		$mb = $this->getModelBuilder();
 		$name = $element->getName();
 		$options = $element->getOptions();
