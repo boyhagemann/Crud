@@ -228,20 +228,19 @@ abstract class CrudController extends BaseController
 		$success = Config::get('crud::config.redirects.success.store');
 		$error = Config::get('crud::config.redirects.error.store');
 
+		Event::fire('crud::creating', array($model));
+
         $v = Validator::make(Input::all(), $model->rules);
 
         if ($v->fails()) {
-            Input::flash();
-            return Redirect::route($error)->withErrors($v->messages());
+            return Redirect::route($error)->withInput()->withErrors($v->messages());
         }
 
         $this->prepare($model);
 
-		Event::fire('crud::creating', array($model, Input::all()));
-
         $model->save();
 
-		Event::fire('crud::saved', array($model, Input::all()));
+		Event::fire('crud::saved', array($model));
 
         $this->saveRelations($model);
 
@@ -283,20 +282,19 @@ abstract class CrudController extends BaseController
 		$success = Config::get('crud::redirects.success.update');
 		$error = Config::get('crud::redirects.error.update');
 
+		Event::fire('crud::updating', array($model));
+
         $v = Validator::make(Input::all(), $model->rules);
 
         if ($v->fails()) {
-            Input::flash();
-            return Redirect::route($error, array($model->id))->withErrors($v->messages());
+            return Redirect::route($error, array($model->id))->withInput()->withErrors($v->messages());
         }
 
         $this->prepare($model);
 
-		Event::fire('crud::updating', array($model, Input::all()));
-
         $model->save();
 
-		Event::fire('crud::saved', array($model, Input::all()));
+		Event::fire('crud::saved', array($model));
 
         $this->saveRelations($model);
 

@@ -39,6 +39,11 @@ class ControllerGenerator
 		$this->class = $class;
 	}
 
+	public function setNamespace($namespace)
+	{
+		$this->generator->setNamespace($namespace);
+	}
+
 	public function generate()
 	{
 		if($this->controller) {
