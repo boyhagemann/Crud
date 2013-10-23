@@ -126,6 +126,7 @@ abstract class CrudController extends BaseController
 
 	/**
 	 * @param string $viewMode
+	 * @return $this
 	 */
 	public function init($method)
 	{
@@ -175,6 +176,8 @@ abstract class CrudController extends BaseController
 		if(method_exists($this, 'onSaved')) {
 			Event::listen('crud::saved', array($this, 'onSaved'));
 		}
+
+		return $this;
 	}
 
     /**
