@@ -347,7 +347,7 @@ abstract class CrudController extends BaseController
     {
         $model = $this->getModel();
         foreach ($this->modelBuilder->getRelations() as $alias => $relation) {
-            if ($relation->getType() == 'belongsToMany') {
+            if ($relation->getType() == 'hasMany') {
                 $model = $model->with($alias);
             }
         }
@@ -363,6 +363,13 @@ abstract class CrudController extends BaseController
         if (!$values) {
             $values = Input::old();
         }
+
+		// Convert relations to simple arrays
+//		foreach($values as $name => &$value) {
+//			if(method_exists($this->getModel(), $name)) {
+//				$value = array_fetch($value, 'id');
+//			}
+//		}
 
         $this->formBuilder->defaults($values);
         return $this->formBuilder->build();
@@ -390,8 +397,9 @@ abstract class CrudController extends BaseController
     {
         foreach (Input::all() as $name => $value) {
 
-            if (method_exists($model, $name) && $model->$name() instanceof Relations\BelongsToMany) {
-                $model->$name()->sync($value);
+            if (method_exists($model, $name) && $model->$name() instanceof Relations\Relation) {
+				$data = isset($value['id']) ? $value['id'] : $value;
+                $model->$name()->sync($data);
             }
         }
     }
