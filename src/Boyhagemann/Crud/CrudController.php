@@ -12,9 +12,9 @@ use View,
     Validator,
     Input,
     Redirect,
-	Config,
+    Config,
     Session,
-	Event;
+    Event;
 
 abstract class CrudController extends BaseController
 {
@@ -33,29 +33,28 @@ abstract class CrudController extends BaseController
      */
     protected $modelBuilder;
 
-	/**
-	 * @var Config
-	 */
-	protected $config;
-
-	/**
-	 * @var string
-	 */
-	protected $viewMode;
+    /**
+     * @var Config
+     */
+    protected $config;
 
     /**
-	 *
+     * @var string
+     */
+    protected $viewMode;
+
+    /**
+     *
      * @param FormBuilder     $fb
      * @param ModelBuilder 	  $mb
      * @param OverviewBuilder $ob
      */
     public function __construct(FormBuilder $fb, ModelBuilder $mb, OverviewBuilder $ob)
     {
-		$this->formBuilder = $fb;
-		$this->modelBuilder = $mb;
-		$this->overviewBuilder = $ob;
+        $this->formBuilder = $fb;
+        $this->modelBuilder = $mb;
+        $this->overviewBuilder = $ob;
     }
-
 
     /**
      * @param FormBuilder $fb
@@ -99,98 +98,98 @@ abstract class CrudController extends BaseController
         return $this->overviewBuilder;
     }
 
-	/**
-	 * Override this method to provide a custom config
-	 *
-	 * @return array
-	 */
-	public function config()
-	{
-		return array();
-	}
+    /**
+     * Override this method to provide a custom config
+     *
+     * @return array
+     */
+    public function config()
+    {
+        return array();
+    }
 
-	/**
-	 *
-	 */
-	public function buildConfig()
-	{
-		Config::set('crud::config.title', 						$this->getModelBuilder()->getName());
-		Config::set('crud::config.redirects.success.store', 	$this->getBaseRoute() . '.index');
-		Config::set('crud::config.redirects.success.update', 	$this->getBaseRoute() . '.index');
-		Config::set('crud::config.redirects.success.destroy', 	$this->getBaseRoute() . '.index');
-		Config::set('crud::config.redirects.error.store', 		$this->getBaseRoute() . '.create');
-		Config::set('crud::config.redirects.error.update', 		$this->getBaseRoute() . '.edit');
+    /**
+     *
+     */
+    public function buildConfig()
+    {
+        Config::set('crud::config.title', $this->getModelBuilder()->getName());
+        Config::set('crud::config.redirects.success.store', $this->getBaseRoute() . '.index');
+        Config::set('crud::config.redirects.success.update', $this->getBaseRoute() . '.index');
+        Config::set('crud::config.redirects.success.destroy', $this->getBaseRoute() . '.index');
+        Config::set('crud::config.redirects.error.store', $this->getBaseRoute() . '.create');
+        Config::set('crud::config.redirects.error.update', $this->getBaseRoute() . '.edit');
 
-		Config::set('crud::config', array_replace_recursive(Config::get('crud::config'), $this->config()));
-	}
+        Config::set('crud::config', array_replace_recursive(Config::get('crud::config'), $this->config()));
+    }
 
-	/**
-	 * @param string $viewMode
-	 * @return $this
-	 */
-	public function init($method)
-	{
-		$this->viewMode = $method;
+    /**
+     * @param string $viewMode
+     * @return $this
+     */
+    public function init($method)
+    {
+        $this->viewMode = $method;
 
-		$fb = $this->formBuilder;
-		$mb = $this->modelBuilder;
-		$ob = $this->overviewBuilder;
+        $fb = $this->formBuilder;
+        $mb = $this->modelBuilder;
+        $ob = $this->overviewBuilder;
 
-		// Let's have the ModelBuilder interact with the FormBuilder.
-		Event::listen('formBuilder.buildElement.post', array($this, 'buildFormElement'));
+        // Let's have the ModelBuilder interact with the FormBuilder.
+        Event::listen('formBuilder.buildElement.post', array($this, 'buildFormElement'));
 
-		// Use a unique name for the FormBuilder instance. This helps identifying the
-		// right FormBuilder instance in event listeners.
-		$fb->setName(get_called_class());
+        // Use a unique name for the FormBuilder instance. This helps identifying the
+        // right FormBuilder instance in event listeners.
+        $fb->setName(get_called_class());
 
-		// Extend the buildModel method to add columns and relations to your model.
-		$this->buildModel($mb);
+        // Extend the buildModel method to add columns and relations to your model.
+        $this->buildModel($mb);
 
-		// Extend the buildForm method to add form elements. These form elements are
-		// translated to database columns using the event mentioned above.
-		$this->buildForm($fb);
+        // Extend the buildForm method to add form elements. These form elements are
+        // translated to database columns using the event mentioned above.
+        $this->buildForm($fb);
 
-		// Setup the OverviewBuilder.
-		$ob->setForm($fb->build());
-		$ob->setModel($mb->build());
+        // Setup the OverviewBuilder.
+        $ob->setForm($fb->build());
+        $ob->setModel($mb->build());
 
-		// Extend the buildOverview method to configure the overview
-		$this->buildOverview($ob);
+        // Extend the buildOverview method to configure the overview
+        $this->buildOverview($ob);
 
-		// There are several configuration options that you can set.
-		// If they are not set yet, then we define some defaults.
-		$this->buildConfig();
+        // There are several configuration options that you can set.
+        // If they are not set yet, then we define some defaults.
+        $this->buildConfig();
 
-		// Now that everything is configured, let's trigger an event so
-		// we can hook into this controller from the outside.
-		Event::fire('crudController.init', array($this));
+        // Now that everything is configured, let's trigger an event so
+        // we can hook into this controller from the outside.
+        Event::fire('crudController.init', array($this));
 
-		if(method_exists($this, 'onCreate')) {
-			Event::listen('crud::creating', array($this, 'onCreate'));
-		}
+        if (method_exists($this, 'onCreate')) {
+            Event::listen('crud::creating', array($this, 'onCreate'));
+        }
 
-		if(method_exists($this, 'onUpdate')) {
-			Event::listen('crud::updating', array($this, 'onUpdate'));
-		}
+        if (method_exists($this, 'onUpdate')) {
+            Event::listen('crud::updating', array($this, 'onUpdate'));
+        }
 
-		if(method_exists($this, 'onSaved')) {
-			Event::listen('crud::saved', array($this, 'onSaved'));
-		}
+        if (method_exists($this, 'onSaved')) {
+            Event::listen('crud::saved', array($this, 'onSaved'));
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * @return mixed
      */
     public function index()
     {
-		$this->init(__METHOD__);
+        $this->init(__METHOD__);
 
         $overview = $this->getOverview();
         $route = $this->getBaseRoute();
-		$title = Config::get('crud::config.title');
-		$view = Config::get('crud::config.view.index');
+        $title = Config::get('crud::config.title');
+        $view = Config::get('crud::config.view.index');
 
         return View::make($view, compact('title', 'overview', 'route'));
     }
@@ -202,7 +201,7 @@ abstract class CrudController extends BaseController
      */
     public function create()
     {
-		$this->init(__METHOD__);
+        $this->init(__METHOD__);
 
         $this->getBaseRoute();
 
@@ -210,8 +209,8 @@ abstract class CrudController extends BaseController
         $model = $this->getModel();
         $errors = Session::get('errors');
         $route = $this->getBaseRoute();
-		$title = Config::get('crud::config.title');
-		$view = Config::get('crud::config.view.create');
+        $title = Config::get('crud::config.title');
+        $view = Config::get('crud::config.view.create');
 
         return View::make($view, compact('title', 'form', 'model', 'route', 'errors'));
     }
@@ -223,15 +222,13 @@ abstract class CrudController extends BaseController
      */
     public function store()
     {
-		$this->init(__METHOD__);
+        $this->init(__METHOD__);
 
-        $form = $this->getForm();
         $model = $this->getModel();
-        $route = $this->getBaseRoute();
-		$success = Config::get('crud::config.redirects.success.store');
-		$error = Config::get('crud::config.redirects.error.store');
+        $success = Config::get('crud::config.redirects.success.store');
+        $error = Config::get('crud::config.redirects.error.store');
 
-		Event::fire('crud::creating', array($model));
+        Event::fire('crud::creating', array($model));
 
         $v = Validator::make(Input::all(), $model->rules);
 
@@ -243,7 +240,7 @@ abstract class CrudController extends BaseController
 
         $model->save();
 
-		Event::fire('crud::saved', array($model));
+        Event::fire('crud::saved', array($model));
 
         $this->saveRelations($model);
 
@@ -257,15 +254,14 @@ abstract class CrudController extends BaseController
      */
     public function edit($id)
     {
-		$this->init(__METHOD__);
+        $this->init(__METHOD__);
 
-		$config = Config::get('crud::config');
         $model = $this->getModelWithRelations()->findOrFail($id);
         $form = $this->getForm($model->toArray());
         $route = $this->getBaseRoute();
         $errors = Session::get('errors');
-		$title = Config::get('crud::config.title');
-		$view = Config::get('crud::config.view.edit');
+        $title = Config::get('crud::config.title');
+        $view = Config::get('crud::config.view.edit');
 
         return View::make($view, compact('title', 'form', 'model', 'route', 'errors'));
     }
@@ -277,15 +273,13 @@ abstract class CrudController extends BaseController
      */
     public function update($id)
     {
-		$this->init(__METHOD__);
+        $this->init(__METHOD__);
 
-        $form = $this->getForm();
         $model = $this->getModel()->findOrFail($id);
-        $route = $this->getBaseRoute();
-		$success = Config::get('crud::redirects.success.update');
-		$error = Config::get('crud::redirects.error.update');
+        $success = Config::get('crud::redirects.success.update');
+        $error = Config::get('crud::redirects.error.update');
 
-		Event::fire('crud::updating', array($model));
+        Event::fire('crud::updating', array($model));
 
         $v = Validator::make(Input::all(), $model->rules);
 
@@ -297,7 +291,7 @@ abstract class CrudController extends BaseController
 
         $model->save();
 
-		Event::fire('crud::saved', array($model));
+        Event::fire('crud::saved', array($model));
 
         $this->saveRelations($model);
 
@@ -311,12 +305,10 @@ abstract class CrudController extends BaseController
      */
     public function destroy($id)
     {
-		$this->init(__METHOD__);
+        $this->init(__METHOD__);
 
-        $form = $this->getForm();
         $model = $this->getModel()->findOrFail($id);
-        $route = $this->getBaseRoute();
-		$success = Config::get('crud::redirects.success.destroy');
+        $success = Config::get('crud::redirects.success.destroy');
 
         $model->delete();
 
@@ -364,13 +356,6 @@ abstract class CrudController extends BaseController
             $values = Input::old();
         }
 
-		// Convert relations to simple arrays
-//		foreach($values as $name => &$value) {
-//			if(method_exists($this->getModel(), $name)) {
-//				$value = array_fetch($value, 'id');
-//			}
-//		}
-
         $this->formBuilder->defaults($values);
         return $this->formBuilder->build();
     }
@@ -398,134 +383,131 @@ abstract class CrudController extends BaseController
         foreach (Input::all() as $name => $value) {
 
             if (method_exists($model, $name) && $model->$name() instanceof Relations\Relation) {
-				$data = isset($value['id']) ? $value['id'] : $value;
+                $data = isset($value['id']) ? $value['id'] : $value;
                 $model->$name()->sync($data);
             }
         }
     }
 
     /**
-	 * Get the base route where the crud controller is working from. This is needed for
-	 * redirecting after saving the model.
-	 *
-	 * The routes can be changed thru a config file or thru the config() method.
-	 *
+     * Get the base route where the crud controller is working from. This is needed for
+     * redirecting after saving the model.
+     *
+     * The routes can be changed thru a config file or thru the config() method.
+     *
      * @return string
      */
     public function getBaseRoute()
     {
-		// If there is a base route, simply return it
-		if(Config::has('crud::config.baseroute')) {
-			return Config::get('crud::config.baseroute');
-		}
+        // If there is a base route, simply return it
+        if (Config::has('crud::config.baseroute')) {
+            return Config::get('crud::config.baseroute');
+        }
 
         $resourceDefaults = array('index', 'create', 'store', 'show', 'edit', 'update', 'destroy');
         $routeName = \Route::currentRouteName();
 
-		// Just to be safe here, make sure the route is a resource. A resource has dots in
-		// route name, where normal routes have a different structure. They start with
-		// 'GET /news' for instance.
-        if(strpos(' ', $routeName)) {
+        // Just to be safe here, make sure the route is a resource. A resource has dots in
+        // route name, where normal routes have a different structure. They start with
+        // 'GET /news' for instance.
+        if (strpos(' ', $routeName)) {
             throw new \Exception('Route must be a resource');
         }
 
-		// Remove the action part of the route, so we get our base route
+        // Remove the action part of the route, so we get our base route
         foreach ($resourceDefaults as $default) {
             $routeName = str_replace('.' . $default, '', $routeName);
         }
 
-		// Set it in the config, so we don't have to process the base route again
-		Config::set('crud::config.baseroute', $routeName);
+        // Set it in the config, so we don't have to process the base route again
+        Config::set('crud::config.baseroute', $routeName);
 
         return $routeName;
     }
 
-	/**
-	 * @param \Boyhagemann\Form\Element\ElementInterface $element
-	 */
-	public function buildFormElement(\Boyhagemann\Form\Element\ElementInterface $element)
-	{
-		// Only continue if the element has to be mapped to a model.
-		if(!$element->getOption('mapped')) {
-			return;
-		}
+    /**
+     * @param \Boyhagemann\Form\Element\ElementInterface $element
+     */
+    public function buildFormElement(\Boyhagemann\Form\Element\ElementInterface $element)
+    {
+        // Only continue if the element has to be mapped to a model.
+        if (!$element->getOption('mapped')) {
+            return;
+        }
 
-		$mb = $this->getModelBuilder();
-		$name = $element->getName();
-		$options = $element->getOptions();
-		$type = $element->getType();
-		$rules = $element->getRules();
+        $mb = $this->getModelBuilder();
+        $name = $element->getName();
+        $options = $element->getOptions();
+        $type = $element->getType();
+        $rules = $element->getRules();
 
 
-		switch($type) {
+        switch ($type) {
 
-			case 'text':
-				$mb->column($name)->type('string');
-				break;
+            case 'text':
+                $mb->column($name)->type('string');
+                break;
 
-			case 'textarea':
-				$mb->column($name)->type('text');
-				break;
+            case 'textarea':
+                $mb->column($name)->type('text');
+                break;
 
-			case 'checkbox':
-			case 'percent':
-			case 'integer':
-				$mb->column($name)->type('integer');
-				break;
+            case 'checkbox':
+            case 'percent':
+            case 'integer':
+                $mb->column($name)->type('integer');
+                break;
 
-			case 'select':
+            case 'select':
 //				if($this->hasRule($name)->type('integer')) {
 //					$this->column($name)->type('integer');
 //				}
 //				else {
-					$mb->column($name)->type('string');
+                $mb->column($name)->type('string');
 //				}
-				break;
+                break;
 
-			case 'modelSelect':
-				$mb->column($name)->type('integer');
+            case 'modelSelect':
+                $mb->column($name)->type('integer');
 //				$mb->hasMany($element->getAlias());
-				break;
+                break;
+        }
 
-		}
+        if ($element->getRules()) {
+            $mb->get($name)->validate($element->getRules());
+        }
+    }
 
-		if ($element->getRules()) {
-			$mb->get($name)->validate($element->getRules());
-		}
+    /**
+     * @return bool
+     */
+    public function isOverview()
+    {
+        return $this->viewMode == __CLASS__ . '::index';
+    }
 
-	}
+    /**
+     * @return bool
+     */
+    public function isCreate()
+    {
+        return $this->viewMode == __CLASS__ . '::create' || $this->viewMode == __CLASS__ . '::store';
+    }
 
-	/**
-	 * @return bool
-	 */
-	public function isOverview()
-	{
-		return $this->viewMode == __CLASS__ . '::index';
-	}
+    /**
+     * @return bool
+     */
+    public function isEdit()
+    {
+        return $this->viewMode == __CLASS__ . '::edit' || $this->viewMode == __CLASS__ . '::update';
+    }
 
-	/**
-	 * @return bool
-	 */
-	public function isCreate()
-	{
-		return $this->viewMode == __CLASS__ . '::create' || $this->viewMode == __CLASS__ . '::store';
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEdit()
-	{
-		return $this->viewMode == __CLASS__ . '::edit' || $this->viewMode == __CLASS__ . '::update';
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isDelete()
-	{
-		return $this->viewMode == __CLASS__ . '::destroy';
-	}
-
+    /**
+     * @return bool
+     */
+    public function isDelete()
+    {
+        return $this->viewMode == __CLASS__ . '::destroy';
+    }
 
 }
