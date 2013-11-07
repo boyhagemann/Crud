@@ -228,7 +228,7 @@ abstract class CrudController extends BaseController
         $success = Config::get('crud::config.redirects.success.store');
         $error = Config::get('crud::config.redirects.error.store');
 
-        Event::fire('crud::creating', array($model));
+        Event::fire('crud::creating', array($model, $this));
 
         $v = Validator::make(Input::all(), $model->rules);
 
@@ -240,7 +240,7 @@ abstract class CrudController extends BaseController
 
         $model->save();
 
-        Event::fire('crud::saved', array($model));
+        Event::fire('crud::saved', array($model, $this));
 
         $this->saveRelations($model);
 
@@ -279,7 +279,7 @@ abstract class CrudController extends BaseController
         $success = Config::get('crud::redirects.success.update');
         $error = Config::get('crud::redirects.error.update');
 
-        Event::fire('crud::updating', array($model));
+        Event::fire('crud::updating', array($model, $this));
 
         $v = Validator::make(Input::all(), $model->rules);
 
@@ -291,7 +291,7 @@ abstract class CrudController extends BaseController
 
         $model->save();
 
-        Event::fire('crud::saved', array($model));
+        Event::fire('crud::saved', array($model, $this));
 
         $this->saveRelations($model);
 
