@@ -431,7 +431,7 @@ abstract class CrudController extends BaseController
     public function buildFormElement(\Boyhagemann\Form\Element\ElementInterface $element)
     {
         // Only continue if the element has to be mapped to a model.
-        if (!$element->getOption('mapped')) {
+        if ($element instanceof \Boyhagemann\Form\Element\CheckableElement && !$element->getOption('mapped')) {
             return;
         }
 
