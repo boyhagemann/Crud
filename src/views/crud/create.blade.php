@@ -1,13 +1,11 @@
-<div class="page-header">
-	<h1>
-		@if($title)
-		{{ $title }}
-		@else
-		Create
-		@endif
-		<small class="pull-right"><a href="{{ URL::route($route . '.index') }}" class="btn-primary btn">Overview</a></small>
-	</h1>
-</div>
+<h1>
+	@if($title)
+	{{ $title }}
+	@else
+	Create
+	@endif
+</h1>
+<br>
 
 <div class="col-lg-12">
 

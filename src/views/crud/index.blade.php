@@ -1,13 +1,11 @@
-<div class="page-header">
-	<h1>
-		@if($title)
-		{{ $title }}
-		@else
-		Overview
-		@endif
-		<small class="pull-right"><a href="{{ URL::route($route . '.create') }}" class="btn-primary btn">Create</a></small>
-	</h1>
-</div>
+<h1>
+	@if($title)
+	{{ $title }}
+	@else
+	Overview
+	@endif
+</h1>
+<br>
 
 <table class="table table-striped">
 	<tr>
