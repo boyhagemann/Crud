@@ -1,7 +1,7 @@
 <div class="page-header">
 <h1>
 	@if($title)
-	{{{ $title }}} <small>Edit</small>
+	{{ $title }}
 	@else
 	Edit
 	@endif
