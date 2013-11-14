@@ -140,7 +140,7 @@ abstract class CrudController extends BaseController
 
         // Use a unique name for the FormBuilder instance. This helps identifying the
         // right FormBuilder instance in event listeners.
-        $fb->setName(get_called_class());
+        $fb->name(get_called_class());
 
         // Extend the buildModel method to add columns and relations to your model.
         $this->buildModel($mb);
