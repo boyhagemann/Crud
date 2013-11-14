@@ -9,9 +9,6 @@
 
 <div class="col-lg-12">
 
-{{ Form::model($model, array('route' => $route . '.store', 'class' => 'form-horizontal')) }}
-{{ Form::renderFields($form, $errors) }}
-{{ Form::submit('Save', array('class' => 'btn btn-primary')) }}
-{{ Form::close() }}
+{{ $form }}
 
 </div>

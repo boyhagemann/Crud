@@ -124,11 +124,13 @@ abstract class CrudController extends BaseController
     }
 
     /**
-     * @param string $viewMode
+     * @param string $method
+     * @param string $id
      * @return $this
      */
-    public function init($method)
+    public function init($method, $id = null)
     {
+        $method = str_replace(__CLASS__ . '::', '', $method);
         $this->viewMode = $method;
 
         $fb = $this->formBuilder;
@@ -149,9 +151,19 @@ abstract class CrudController extends BaseController
         // translated to database columns using the event mentioned above.
         $this->buildForm($fb);
 
+        if(!$fb->getOption('route') && !$fb->getOption('url')) {
+            
+            if($id) {
+                $fb->route($this->getBaseRoute() . '.update', $id);                
+            }
+            else {
+                $fb->route($this->getBaseRoute() . '.store');
+            }
+        }
+        
         // Setup the OverviewBuilder.
-        $ob->setForm($fb->build());
-        $ob->setModel($mb->build());
+        $ob->setFormBuilder($fb);
+        $ob->setModelBuilder($mb);
 
         // Extend the buildOverview method to configure the overview
         $this->buildOverview($ob);
@@ -254,7 +266,7 @@ abstract class CrudController extends BaseController
      */
     public function edit($id)
     {
-        $this->init(__METHOD__);
+        $this->init(__METHOD__, $id);
 
         $model = $this->getModelWithRelations()->findOrFail($id);
         $form = $this->getForm($model->toArray());
@@ -324,7 +336,7 @@ abstract class CrudController extends BaseController
     }
 
     /**
-     * @return Model
+     * @return Overview
      */
     public function getOverview()
     {
@@ -348,7 +360,7 @@ abstract class CrudController extends BaseController
     }
 
     /**
-     * @return \Symfony\Component\Form\Form
+     * @return \Illuminate\View\View
      */
     public function getForm($values = null)
     {
