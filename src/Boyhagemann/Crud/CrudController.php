@@ -268,6 +268,7 @@ abstract class CrudController extends BaseController
     {
         $this->init(__METHOD__, $id);
 
+        $this->formBuilder->method('put');
         $model = $this->getModelWithRelations()->findOrFail($id);
         $form = $this->getForm($model->toArray());
         $route = $this->getBaseRoute();

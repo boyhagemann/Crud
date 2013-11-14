@@ -3,7 +3,7 @@
 </div>
 
 <div class="col-12">
-{{ Form::render($form) }}
+    {{ $form }}
 </div>
 
 <hr>
