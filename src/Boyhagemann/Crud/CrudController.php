@@ -11,7 +11,9 @@ use View,
     BaseController,
     Validator,
     Input,
+	Request,
     Redirect,
+	Response,
     Config,
     Session,
     Event;
@@ -256,6 +258,10 @@ abstract class CrudController extends BaseController
 
         $this->saveRelations($model);
 
+		if(Request::ajax()) {
+			return Response::json($model);
+		}
+
         return Redirect::route($success);
     }
 
@@ -307,6 +313,10 @@ abstract class CrudController extends BaseController
         Event::fire('crud::saved', array($model, $this));
 
         $this->saveRelations($model);
+
+		if(Request::ajax()) {
+			return Response::json($model);
+		}
 
         return Redirect::route($success);
     }
@@ -395,7 +405,7 @@ abstract class CrudController extends BaseController
     {
         foreach (Input::all() as $name => $value) {
 
-            if (method_exists($model, $name) && $model->$name() instanceof Relations\Relation) {
+            if (method_exists($model, $name) && $model->$name() instanceof Relations\BelongsToMany) {
                 $data = isset($value['id']) ? $value['id'] : $value;
                 $model->$name()->sync($data);
             }
