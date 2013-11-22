@@ -139,9 +139,6 @@ abstract class CrudController extends BaseController
         $mb = $this->modelBuilder;
         $ob = $this->overviewBuilder;
 
-        // Let's have the ModelBuilder interact with the FormBuilder.
-        Event::listen('formBuilder.buildElement.post', array($this, 'buildFormElement'));
-
         // Use a unique name for the FormBuilder instance. This helps identifying the
         // right FormBuilder instance in event listeners.
         $fb->name(get_called_class());
@@ -448,58 +445,6 @@ abstract class CrudController extends BaseController
         return $routeName;
     }
 
-    /**
-     * @param \Boyhagemann\Form\Element\ElementInterface $element
-     */
-    public function buildFormElement(\Boyhagemann\Form\Element\ElementInterface $element)
-    {
-        // Only continue if the element has to be mapped to a model.
-        if ($element instanceof \Boyhagemann\Form\Element\CheckableElement && !$element->getOption('mapped')) {
-            return;
-        }
-
-        $mb = $this->getModelBuilder();
-        $name = $element->getName();
-        $options = $element->getOptions();
-        $type = $element->getType();
-        $rules = $element->getRules();
-
-
-        switch ($type) {
-
-            case 'text':
-                $mb->column($name)->type('string');
-                break;
-
-            case 'textarea':
-                $mb->column($name)->type('text');
-                break;
-
-            case 'checkbox':
-            case 'percent':
-            case 'integer':
-                $mb->column($name)->type('integer');
-                break;
-
-            case 'select':
-//				if($this->hasRule($name)->type('integer')) {
-//					$this->column($name)->type('integer');
-//				}
-//				else {
-                $mb->column($name)->type('string');
-//				}
-                break;
-
-            case 'modelSelect':
-                $mb->column($name)->type('integer');
-//				$mb->hasMany($element->getAlias());
-                break;
-        }
-
-        if ($element->getRules()) {
-            $mb->get($name)->validate($element->getRules());
-        }
-    }
 
     /**
      * @return bool
