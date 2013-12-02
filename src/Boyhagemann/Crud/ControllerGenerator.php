@@ -21,6 +21,8 @@ class ControllerGenerator
 
 	protected $class;
 
+	protected $modelClass;
+
         /**
 	 * @param FileGenerator $generator
 	 */
@@ -39,6 +41,11 @@ class ControllerGenerator
 		$this->class = $class;
 	}
 
+	public function setModelClass($modelClass)
+	{
+		$this->modelClass = $modelClass;
+	}
+
 	public function setNamespace($namespace)
 	{
 		$this->generator->setNamespace($namespace);
@@ -54,8 +61,11 @@ class ControllerGenerator
 			$className = $this->class;
 		}
 
+
+		$modelClass = $this->modelClass ? $this->modelClass : $this->class;
+
 		$class = new ClassGenerator();
-		$class->setName($className . 'Controller');
+		$class->setName($className);
 		$class->setExtendedClass('CrudController');
 		$class->addUse('Boyhagemann\Crud\CrudController');
 		$class->addUse('Boyhagemann\Form\FormBuilder');
@@ -70,7 +80,7 @@ class ControllerGenerator
                 
 		$param = new ParameterGenerator();
 		$param->setName('mb')->setType('ModelBuilder');
-		$body = sprintf('$mb->name(\'%s\')->table(\'%s\');' . PHP_EOL, $className, strtolower(str_replace('\\', '_', $className)));
+		$body = sprintf('$mb->name(\'%s\')->table(\'%s\');' . PHP_EOL, $modelClass, strtolower(str_replace('\\', '_', $modelClass)));
 		$body .= '$mb->autoGenerate();' . PHP_EOL;
 		$docblock = '@param ModelBuilder $mb';
 		$class->addMethod('buildModel', array($param), MethodGenerator::FLAG_PUBLIC, $body, $docblock);
