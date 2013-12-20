@@ -151,9 +151,9 @@ abstract class CrudController extends BaseController
         $this->buildForm($fb);
 
         if(!$fb->getOption('route') && !$fb->getOption('url')) {
-            
+
             if($id) {
-                $fb->route($this->getBaseRoute() . '.update', $id);                
+                $fb->route($this->getBaseRoute() . '.update', $id);
             }
             else {
                 $fb->route($this->getBaseRoute() . '.store');
