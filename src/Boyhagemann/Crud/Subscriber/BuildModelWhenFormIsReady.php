@@ -5,6 +5,7 @@ namespace Boyhagemann\Crud\Subscriber;
 use Illuminate\Events\Dispatcher as Events;
 use Boyhagemann\Crud\CrudController;
 use Boyhagemann\Form\Element;
+use Boyhagemann\Form\Element\ElementInterface;
 use Boyhagemann\Form\Element\Type;
 use Boyhagemann\Form\Element\Type\MultipleChoice;
 use Boyhagemann\Model\ModelBuilder;
@@ -34,10 +35,10 @@ class BuildModelWhenFormIsReady
 	}
 
 	/**
-	 * @param Element $element
+	 * @param ElementInterface $element
 	 * @param ModelBuilder $mb
 	 */
-	public function buildFormElement(Element $element, ModelBuilder $mb)
+	public function buildFormElement(ElementInterface $element, ModelBuilder $mb)
 	{
 		// Only continue if the element has to be mapped to a model.
 		if ($element instanceof MultipleChoice && !$element->isMapped()) {
