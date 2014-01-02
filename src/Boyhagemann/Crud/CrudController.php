@@ -247,8 +247,7 @@ abstract class CrudController extends BaseController
             return Redirect::route($error)->withInput()->withErrors($v->messages());
         }
 
-        $this->prepare($model);
-
+		$model->fill(Input::all());
         $model->save();
 
         Event::fire('crud::saved', array($model, $this));
@@ -297,14 +296,17 @@ abstract class CrudController extends BaseController
 
         Event::fire('crud::updating', array($model, $this));
 
-        $v = Validator::make(Input::all(), $model->rules);
+		// Check if there are rules provided for this model in this controller
+		// If not, we use the rules of the model itself
+		$rules = method_exists($this, 'rules') ? $this->rules() : $this->getFormBuilder()->getRules();
+
+        $v = Validator::make(Input::all(), $rules);
 
         if ($v->fails()) {
             return Redirect::route($error, array($model->id))->withInput()->withErrors($v->messages());
         }
 
-        $this->prepare($model);
-
+		$model->fill(Input::all());
         $model->save();
 
         Event::fire('crud::saved', array($model, $this));
@@ -378,20 +380,6 @@ abstract class CrudController extends BaseController
 
         $this->formBuilder->defaults($values);
         return $this->formBuilder->build();
-    }
-
-    /**
-     * 
-     * @param Model $model
-     */
-    protected function prepare(Model $model)
-    {
-        foreach (Input::all() as $name => $value) {
-
-            if (in_array($name, $model->getFillable())) {
-                $model->$name = $value;
-            }
-        }
     }
 
     /**
