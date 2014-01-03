@@ -159,7 +159,7 @@ abstract class CrudController extends BaseController
                 $fb->route($this->getBaseRoute() . '.store');
             }
         }
-        
+
         // Setup the OverviewBuilder.
         $ob->setFormBuilder($fb);
         $ob->setModelBuilder($mb);

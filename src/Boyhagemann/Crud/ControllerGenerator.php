@@ -81,7 +81,6 @@ class ControllerGenerator
 		$param = new ParameterGenerator();
 		$param->setName('mb')->setType('ModelBuilder');
 		$body = sprintf('$mb->name(\'%s\')->table(\'%s\');' . PHP_EOL, $modelClass, strtolower(str_replace('\\', '_', $modelClass)));
-		$body .= '$mb->autoGenerate();' . PHP_EOL;
 		$docblock = '@param ModelBuilder $mb';
 		$class->addMethod('buildModel', array($param), MethodGenerator::FLAG_PUBLIC, $body, $docblock);
                                 
