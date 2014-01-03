@@ -241,7 +241,11 @@ abstract class CrudController extends BaseController
 
         Event::fire('crud::creating', array($model, $this));
 
-        $v = Validator::make(Input::all(), $model->rules);
+		// Check if there are rules provided for this model in this controller
+		// If not, we use the rules of the model itself
+		$rules = method_exists($this, 'rules') ? $this->rules() : $this->getFormBuilder()->getRules();
+
+        $v = Validator::make(Input::all(), $rules);
 
         if ($v->fails()) {
             return Redirect::route($error)->withInput()->withErrors($v->messages());
